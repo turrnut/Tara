@@ -21,8 +21,32 @@
 #include <stdlib.h>
 #include "load.h"
 
-unique_ptr<int> error(const char* msg){
+enum ErrorTypes{
+    ERROR=1,
+    PARSE_ERROR=2
+}errtypes;
+
+unique_ptr<Node> error(const char* msg){
     fprintf(stderr,"Error: %s\n",msg);
     return nullptr;
 }
+
+unique_ptr<Node> parseerror(const char* msg){
+    fprintf(stderr,"ParseError: %s\n",msg);
+    return nullptr;
+}
+
+unique_ptr<Node> error(const char* msg, int type){
+    switch (type){
+        case 1:
+            return error(msg);
+            break;
+        case 2:
+            return parseerror(msg);
+            break;
+        default:
+            return error(msg);
+    }
+}
+
 #endif

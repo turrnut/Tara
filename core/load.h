@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <memory>
 #include <ctype.h>
+#include <stdbool.h>
 #include "lexutils.h"
 using namespace std;
 /**
@@ -144,6 +145,7 @@ class Node {
         Node(){ }
         virtual ~Node(){ }
 };
+#include "error.h"
 class BinaryNode : public Node{
     char o;
     unique_ptr<Node> l;
@@ -215,5 +217,49 @@ class Parser{
             return move(res);
         }
 
+        static unique_ptr<Node> parseParenthese(){
+            next();
+            auto val = parseExpression();
+            if (!val){
+                return nullptr;
+            }
+            if (current == ')') {
+                next();
+                return val;
+            }
+            return error("Expected ')'", PARSE_ERROR);
+        }
+
+        static unique_ptr<Node> parseId() {
+            string id = idstr;
+            next();
+
+            if (current != '('){
+                make_unique<VariableNode>(id);
+            }
+            next();
+            vector<unique_ptr<Node>> arguments;
+
+            if (current != ')') {
+                while(true) {
+                    auto argument = parseExpression();
+                    if (argument) {
+                        arguments.push_back(move(argument));
+                    } else {
+                        return nullptr;
+                    }
+                    if (current != ')' && current != ','){
+                        return error("Expected ')' or ',' in arguments", PARSE_ERROR);
+                    }
+                    next();
+                }
+            }
+            next();
+            return make_unique<FunCallNode>(id, move(arguments));
+        }
+
+        static unique_ptr<Node> parseExpression() {
+
+        }
 };
 #endif
