@@ -19,7 +19,7 @@
 #define __ERROR__
 #include <iostream>
 #include <stdlib.h>
-#include "load.h"
+#include "../core/load.h"
 
 enum ErrorTypes{
     ERROR=1,
@@ -27,7 +27,7 @@ enum ErrorTypes{
 }errtypes;
 
 unique_ptr<Node> error(const char* msg){
-    fprintf(stderr,"Error: %s\n",msg);
+    cout << "Error: " << msg << "\nFile: " << lexconfig.getfilename() << "\n";
     return nullptr;
 }
 

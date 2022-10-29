@@ -145,7 +145,7 @@ class Node {
         Node(){ }
         virtual ~Node(){ }
 };
-#include "error.h"
+#include "../error/error.h"
 class BinaryNode : public Node{
     char o;
     unique_ptr<Node> l;
@@ -205,7 +205,6 @@ class Function{
             this->content = move(body);
         }
 };
-
 /**
  * The class that parse the tokens.
 */
@@ -249,7 +248,7 @@ class Parser{
                         return nullptr;
                     }
                     if (current != ')' && current != ','){
-                        return error("Expected ')' or ',' in arguments", PARSE_ERROR);
+                        return error("Expected ')' or ',' in arguments list", PARSE_ERROR);
                     }
                     next();
                 }
@@ -260,6 +259,19 @@ class Parser{
 
         static unique_ptr<Node> parseExpression() {
 
+        }
+
+        static std::unique_ptr<Node> determine(){
+            switch (current) {
+                case '(':
+                    return parseParenthese();
+                case tok_num:
+                    return parseNumber();
+                case tok_id:
+                    return parseId();
+                default:
+                    error("unkown token when parsing an expression");
+            }
         }
 };
 #endif
