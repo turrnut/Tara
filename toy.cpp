@@ -13,16 +13,19 @@
  * This file is the entry point of the programming language.
  * 
 */
+#ifndef TOY
+#define TOY
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
 #include <stdio.h>
-#include "core/load.h"
+#include "core/load.cpp"
 #include "utils/files.h"
 using namespace std;
 void run (string filename, string text){
     setfilename(filename);
     settext(text);
+    setbinpriority();
     int tok = lex();
     cout << tok << ", ";
     tok = lex();
@@ -50,3 +53,4 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
+#endif

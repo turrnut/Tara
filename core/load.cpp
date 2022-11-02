@@ -9,7 +9,7 @@
  * you will have to state changes you made and include the
  * orginal author of this file.
  * 
- * load.h
+ * load.cpp
  * This file received raw text, tokenize and parse it,
  * and will output the abstract syntax tree.
  * 
@@ -27,6 +27,7 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
+#include <map>
 #include <memory>
 #include <ctype.h>
 #include <stdbool.h>
@@ -78,7 +79,19 @@ static int lex() {
         if (current == EOF || get() >= text.length() -1) {
             return tok_eof;
         }
-        if (current == '\n' || current == '\r' || current == '\t' || current == ' '){
+        
+        long long currentCCount = lexconfig.getccount();
+        lexconfig.setccount(1 + currentCCount);
+        if (current == '\n') {
+            long long currentLCount = lexconfig.getlcount();
+            lexconfig.setlcount(1 + currentLCount);
+            lexconfig.setccount(0);
+            set(get() + 1);
+            current = text[get()];
+            continue;
+        }
+
+        if (current == '\r' || current == '\t' || current == ' '){
             set(get() + 1);
             current = text[get()];
             continue;
@@ -130,6 +143,30 @@ static int lex() {
 */
 
 static int current;
+static map<char, long long> binpriority;
+
+
+static void setbinpriority(){
+    binpriority['>'] = 10;
+    binpriority['<'] = 20;
+    binpriority['+'] = 30;
+    binpriority['-'] = 30;
+    binpriority['/'] = 40;
+    binpriority['*'] = 60;
+    binpriority['^'] = 70;
+}
+
+static long long getTokenpriority(){
+    if (!isascii(current)){
+        return -1;
+    }
+    long long priority = binpriority[current];
+    if (priority <= 0){
+        return -1;
+    }
+    return priority;
+}
+
 static int next() {
     current = lex();
     return current;
@@ -257,8 +294,34 @@ class Parser{
             return make_unique<FunCallNode>(id, move(arguments));
         }
 
-        static unique_ptr<Node> parseExpression() {
+        static unique_ptr<FunctionType> parseFunctionType(){
+            if (current == tok_id){
+                string name = idstr;
+                next();
 
+                if (current != '(') {
+                    error("Expected '(' in function definition", PARSE_ERROR);
+                    return nullptr;
+                }
+
+                vector<string> arguments;
+                while(next() == tok_id){
+                    arguments.push_back(idstr);
+                }
+
+                if (current == '(') {
+                    next();
+                    return make_unique<FunctionType>(name, move(arguments));
+                }
+                error("Expected ')' in function definition", PARSE_ERROR);
+                return nullptr;
+            } else {
+                error("Expected a name for the function",PARSE_ERROR);
+            }
+        }
+
+        static unique_ptr<Node> parseExpression() {
+        
         }
 
         static std::unique_ptr<Node> determine(){

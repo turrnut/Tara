@@ -19,8 +19,12 @@
 */
 #include <iostream>
 using namespace std;
+#ifndef LEXUTILS
+#define LEXUTILS
 class LexerConfig{
     long long cursor;
+    long long lcount;
+    long long ccount;
     string filename;
     string text; 
     public:
@@ -52,4 +56,21 @@ class LexerConfig{
         void settext(string filetext){
             this->text = filetext;
         }
+
+        void setlcount(long long count){
+            this->lcount = count;
+        }
+
+        long long getlcount(){
+            return this->lcount;
+        }
+
+        void setccount(long long count){
+            this->ccount = count;
+        }
+
+        long long getccount(){
+            return this->ccount;
+        }
 } lexconfig;
+#endif
