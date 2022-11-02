@@ -17,7 +17,6 @@
 
 #ifndef __ERROR__
 #define __ERROR__
-#include <iostream>
 #include <stdlib.h>
 #include "../core/load.h"
 
