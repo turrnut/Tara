@@ -20,8 +20,13 @@
  * the token defined in enum Token.
  * 
  * parser
+ * the parser takes the tokens produce by the lexer as input,
+ * and parse them into an Abstract Syntax Tree(AST) which
+ * consists of different nodes. The AST tells the program
+ * the priority of the tokens and which to execute first.
  * 
 */
+
 #ifndef __LOAD__
 #define __LOAD__
 #include <vector>
@@ -39,7 +44,7 @@ using namespace std;
 enum Token {
     tok_eof = -1,
     tok_fun = -2,
-    tok_ext = -3,
+    tok_im = -3,
     tok_id  = -4,
     tok_num = -5,
 };
@@ -82,16 +87,23 @@ static int lex() {
         
         long long currentCCount = lexconfig.getccount();
         lexconfig.setccount(1 + currentCCount);
+        if (current == '(') {
+            set(get() + 1);
+            current = text[get()];
+            return '(';
+        }
+
+        if (current == ')') {
+            set(get() + 1);
+            current = text[get()];
+            return ')';
+        }
         if (current == '\n') {
             long long currentLCount = lexconfig.getlcount();
             lexconfig.setlcount(1 + currentLCount);
             lexconfig.setccount(0);
-            set(get() + 1);
-            current = text[get()];
-            continue;
         }
-
-        if (current == '\r' || current == '\t' || current == ' '){
+        if (current == '\n' || current == '\r' || current == '\t' || current == ' '){
             set(get() + 1);
             current = text[get()];
             continue;
@@ -109,7 +121,7 @@ static int lex() {
             if (idstr == "fun")
                 return tok_fun;
             if (idstr == "import")
-                return tok_ext;
+                return tok_im;
             return tok_id;
         }
         if (isdigit(current) || '.' == current){
@@ -145,7 +157,10 @@ static int lex() {
 static int current;
 static map<char, long long> binpriority;
 
-
+/**
+ * This function sets the priority of the binary operators
+ * which is usually called when the compiler first started
+*/
 static void setbinpriority(){
     binpriority['>'] = 10;
     binpriority['<'] = 20;
@@ -188,7 +203,7 @@ class BinaryNode : public Node{
     unique_ptr<Node> l;
     unique_ptr<Node> r;
     public:
-        BinaryNode(char op, unique_ptr<Node> right, unique_ptr<Node> left){
+        BinaryNode(unique_ptr<Node> left, char op, unique_ptr<Node> right){
             this->o = op;
             this->l = move(left);
             this->r = move(right);
@@ -196,9 +211,9 @@ class BinaryNode : public Node{
 };
 class FunCallNode : public Node {
     string name;
-    std::vector<unique_ptr<Node>> args;
+    vector<unique_ptr<Node>> args;
     public:
-        FunCallNode(const string &funname, std::vector<unique_ptr<Node>> arguments){
+        FunCallNode(const string &funname, vector<unique_ptr<Node>> arguments){
             this->name = funname;
             this->args = move(arguments);
         }
@@ -259,11 +274,11 @@ class Parser{
             if (!val){
                 return nullptr;
             }
-            if (current == ')') {
-                next();
-                return val;
+            if (current != ')') {
+                return error("Expected ')'", PARSE_ERROR);
             }
-            return error("Expected ')'", PARSE_ERROR);
+            next();
+            return val;
         }
 
         static unique_ptr<Node> parseId() {
@@ -271,20 +286,24 @@ class Parser{
             next();
 
             if (current != '('){
-                make_unique<VariableNode>(id);
+                return make_unique<VariableNode>(id);
             }
             next();
             vector<unique_ptr<Node>> arguments;
 
             if (current != ')') {
                 while(true) {
-                    auto argument = parseExpression();
-                    if (argument) {
+                    if (auto argument = parseExpression()) {
                         arguments.push_back(move(argument));
                     } else {
                         return nullptr;
                     }
-                    if (current != ')' && current != ','){
+
+                    if(current != ')') {
+                        break;
+                    }
+
+                    if (current != ','){
                         return error("Expected ')' or ',' in arguments list", PARSE_ERROR);
                     }
                     next();
@@ -319,21 +338,79 @@ class Parser{
                 error("Expected a name for the function",PARSE_ERROR);
             }
         }
-
-        static unique_ptr<Node> parseExpression() {
         
+        static unique_ptr<Function> parseFunctionDefiniton(){
+            next();
+            auto funtype = parseFunctionType();
+            if (!funtype) {
+                return nullptr;
+            }
+            auto content = parseExpression();
+            if (content) {
+                return make_unique<Function>(move(funtype), move(content));
+            }
+            return nullptr;
+            
         }
 
-        static std::unique_ptr<Node> determine(){
+        static unique_ptr<FunctionType> parseImport() {
+            next();
+            return parseFunctionType();
+        }
+
+        static unique_ptr<Function> parseTopLevel() {
+            if (auto content = parseExpression()) {
+                auto type = make_unique<FunctionType>("", vector<string>());
+                return make_unique<Function>(move(type), move(content));
+            }
+            return nullptr;
+        }
+        static unique_ptr<Node> parseRightBinaryOperator(int priority, unique_ptr<Node> leftoperator){
+            while(true){
+                int tokenPriority = getTokenpriority();
+                if (tokenPriority < priority){
+                    return leftoperator;
+                }
+                int op = current;
+                next();
+                auto rightoperator = determine();
+                if (!rightoperator) {
+                    return nullptr;
+                }
+
+                int rightOperatorPriority = getTokenpriority(); 
+                if (tokenPriority < rightOperatorPriority) {
+                    leftoperator = make_unique<BinaryNode>(move(leftoperator), op, move(rightoperator));
+                }
+                
+                rightOperatorPriority = getTokenpriority(); 
+                if (tokenPriority < rightOperatorPriority) {
+                    rightoperator = parseRightBinaryOperator(1 + tokenPriority, move(rightoperator));
+                    if (!rightoperator) {
+                        return nullptr;
+                    }
+                }
+                leftoperator = make_unique<BinaryNode>(move(leftoperator), op, move(rightoperator));
+            }
+        }
+        static unique_ptr<Node> parseExpression() {
+            auto l = determine();
+            if (!l) 
+                return nullptr;
+            return parseRightBinaryOperator(0, move(l));
+        }
+
+
+        static unique_ptr<Node> determine(){
             switch (current) {
-                case '(':
-                    return parseParenthese();
-                case tok_num:
-                    return parseNumber();
-                case tok_id:
-                    return parseId();
                 default:
                     error("unkown token when parsing an expression");
+                case tok_id:
+                    return parseId();
+                case tok_num:
+                    return parseNumber();
+                case '(':
+                    return parseParenthese();
             }
         }
 };
