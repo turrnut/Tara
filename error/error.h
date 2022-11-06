@@ -26,14 +26,17 @@ enum ErrorTypes{
     PARSE_ERROR=2
 }errtypes;
 
-unique_ptr<Node> error(const char* msg){
-    cout << "\nError: " << msg << "\nFile: " << lexconfig.getfilename() << ":" << lexconfig.getlcount() << ":"<< lexconfig.getccount() <<"\n"; 
+
+unique_ptr<Node> errorWithName(const char* msg, const char* errorname){
+    cout << "\a\n"<< errorname << ": " << msg << "\nFile: " << lexconfig.getfilename() << ":" << lexconfig.getlcount() << ":"<< lexconfig.getccount() <<"\n"; 
     return nullptr;
+}
+unique_ptr<Node> error(const char* msg){
+    return errorWithName(msg, "Error");
 }
 
 unique_ptr<Node> parseerror(const char* msg){
-    cout << "\nParseError: " << msg << "\nFile: " << lexconfig.getfilename() << ":" << lexconfig.getlcount() << ":" <<  lexconfig.getccount() << "\n";
-    return nullptr;
+    return errorWithName(msg, "ParseError");
 }
 
 unique_ptr<Node> error(const char* msg, int type){
