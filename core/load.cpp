@@ -90,12 +90,20 @@ static int lex() {
         if (current == '(') {
             set(get() + 1);
             current = text[get()];
+            if (current == '(') {
+                set(get() + 1);
+                current = text[get()];
+            }
             return '(';
         }
 
         if (current == ')') {
             set(get() + 1);
             current = text[get()];
+            if (current == ')') {
+                set(get() + 1);
+                current = text[get()];
+            }
             return ')';
         }
         if (current == '\n') {

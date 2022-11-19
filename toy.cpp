@@ -26,10 +26,17 @@ void run (string filename, string text){
     setfilename(filename);
     settext(text);
     setbinpriority();
-    int tok = lex();
-    cout << tok << ", ";
-    tok = lex();
-    cout << tok;
+    // int tok = lex();
+    // cout << tok << ", ";
+    // tok = lex();
+    // cout << tok;
+    while(current = next()) {
+        cout << current << "\n";
+        if (current == EOF) {
+            return;
+        }
+    }
+
 }
 
 int main(int argc, char const *argv[]) {
