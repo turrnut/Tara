@@ -3,7 +3,7 @@
  * Copyrighted © turrnut under the Apache 2.0 license
  * 
  * We hoped that you will use this piece of open source
- * software fairly. read the LICENSE for details for
+ * software fairly. read the LICENSE in the project for
  * more details about how you can use it, you have freedom
  * to distribute and use this file in your project. However,
  * you will have to state changes you made and include the
@@ -27,8 +27,9 @@
  * 
 */
 
-#ifndef __LOAD__
-#define __LOAD__
+#ifndef LOAD
+#define LOAD
+
 #include <vector>
 #include <iostream>
 #include <cstdlib>
@@ -38,8 +39,13 @@
 #include <stdbool.h>
 #include "lexutils.h"
 using namespace std;
-/**
+/*
  * Lexer
+*/
+
+/**
+ * This enum provides number representaions for different tokens,
+ * a token can be seen as one of the numbers in te token class.
 */
 enum Token {
     tok_eof = -1,
@@ -68,6 +74,12 @@ string gettext(){
 void settext(string filetext){
     lexconfig.settext(filetext);
 }
+
+/**
+ * This class gets the current token and return it according to
+ * values defined in the enum Token, if its not a token defined
+ * in the enum, it will return its ASCII value
+*/
 static int lex() {
     if (lexconfig.getfilename().empty() || lexconfig.gettext().empty()) {
         exit(1);
@@ -160,7 +172,7 @@ static int lex() {
     }
 }
 
-/**
+/*
  * Parser
 */
 
@@ -181,6 +193,13 @@ static void setbinpriority(){
     binpriority['^'] = 70;
 }
 
+/**
+ * This function gets the priority of the current token,
+ * which can be used by other parts of the program to
+ * determine what token should be evaluated first.
+ * The token priority was set through the setbinpriority
+ * function.
+*/
 static long long getTokenpriority(){
     if (!isascii(current)){
         return -1;
@@ -192,22 +211,32 @@ static long long getTokenpriority(){
     return priority;
 }
 
+/**
+ * Advance to the next token and return it
+*/
 static int next() {
     current = lex();
     return current;
 }
 
-
 /*
     Nodes in the Abstract Syntax Tree(AST)
 */
-// Base class for all nodes
+/**
+ * Base class for all nodes
+ */
 class Node {
     public:
         Node(){ }
         virtual ~Node(){ }
 };
 #include "../error/error.h"
+
+/**
+ * This node represent a binary expression which
+ * contains a left and right value and an operator
+ * in the middle
+*/
 class BinaryNode : public Node{
     char o;
     unique_ptr<Node> l;
@@ -219,6 +248,12 @@ class BinaryNode : public Node{
             this->r = move(right);
         }
 };
+
+/**
+ * This node represent the expression of an 
+ * invocation of a function, which contains its name
+ * and arguments
+*/
 class FunCallNode : public Node {
     string name;
     vector<unique_ptr<Node>> args;
@@ -228,6 +263,10 @@ class FunCallNode : public Node {
             this->args = move(arguments);
         }
 };
+
+/**
+ * This node represent a number
+*/
 class NumberNode : public Node {
     double val;
     public:
@@ -235,6 +274,10 @@ class NumberNode : public Node {
             this->val = value;
         }
 };
+
+/**
+ * this node represent a variable definition
+*/
 class VariableNode : public Node {
     string name;
     public:
@@ -242,6 +285,10 @@ class VariableNode : public Node {
             this->name = varname;
         }
 };
+
+/**
+ * This class represent a function type
+*/
 class FunctionType{
     string name;
     vector<string> args;
@@ -257,6 +304,9 @@ class FunctionType{
             return this->name;
         }
 };
+/**
+ * This class represent a function
+*/
 class Function{
     unique_ptr<FunctionType> fun;
     unique_ptr<Node> content;
@@ -268,16 +318,25 @@ class Function{
         }
 };
 /**
- * The class that parse the tokens.
+ * The Parser class parse the tokens. By doing so, several functions were
+ * defined in the Parser that parse different tokens.
+ *
 */
 class Parser{
     public:
+        /**
+         * This function parse a number
+        */
         static unique_ptr<Node> parseNumber(){
             auto res = make_unique<NumberNode>(numval);
             next();
             return move(res);
         }
 
+        /**
+         * This function should be invoked whenever parenthese(s) are
+         * detected
+        */
         static unique_ptr<Node> parseParenthese(){
             next();
             auto val = parseExpression();
@@ -291,6 +350,9 @@ class Parser{
             return val;
         }
 
+        /**
+         * This function parses an identifier
+        */
         static unique_ptr<Node> parseId() {
             string id = idstr;
             next();
@@ -323,6 +385,9 @@ class Parser{
             return make_unique<FunCallNode>(id, move(arguments));
         }
 
+        /**
+         * This function parse a function
+        */
         static unique_ptr<FunctionType> parseFunctionType(){
             if (current == tok_id){
                 string name = idstr;
@@ -348,7 +413,12 @@ class Parser{
                 error("Expected a name for the function",PARSE_ERROR);
             }
         }
-        
+
+        /**
+         * This function parse a function definition and should
+         * be called whenever there is an function definition
+         * statement
+        */
         static unique_ptr<Function> parseFunctionDefiniton(){
             next();
             auto funtype = parseFunctionType();
@@ -363,11 +433,17 @@ class Parser{
             
         }
 
+        /**
+         * This function parse an import statement
+        */
         static unique_ptr<FunctionType> parseImport() {
             next();
             return parseFunctionType();
         }
 
+        /**
+         * This function parse a top-level expression
+        */
         static unique_ptr<Function> parseTopLevel() {
             if (auto content = parseExpression()) {
                 auto type = make_unique<FunctionType>("", vector<string>());
@@ -375,6 +451,11 @@ class Parser{
             }
             return nullptr;
         }
+
+        /**
+         * This function is used to parse the right operator in an
+         * expression
+        */
         static unique_ptr<Node> parseRightBinaryOperator(int priority, unique_ptr<Node> leftoperator){
             while(true){
                 int tokenPriority = getTokenpriority();
@@ -403,6 +484,12 @@ class Parser{
                 leftoperator = make_unique<BinaryNode>(move(leftoperator), op, move(rightoperator));
             }
         }
+
+        /**
+         * This function parse an expression according to its
+         * token type which can be determined through the
+         * determine function in the same class
+        */
         static unique_ptr<Node> parseExpression() {
             auto l = determine();
             if (!l) 
@@ -410,7 +497,11 @@ class Parser{
             return parseRightBinaryOperator(0, move(l));
         }
 
-
+        /**
+         * This function is used to determine what is the
+         * current token and return the evaluation of it
+         * according to its type
+        */
         static unique_ptr<Node> determine(){
             switch (current) {
                 default:
