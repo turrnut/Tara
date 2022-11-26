@@ -78,6 +78,7 @@ static int lex() {
     while (true){
         if (get() == -1) {
             set(0);
+            lexconfig.setlcount(1);
         }
         static int current = text[get()];
 
@@ -130,6 +131,7 @@ static int lex() {
                 return tok_fun;
             if (idstr == "import")
                 return tok_im;
+            
             return tok_id;
         }
         if (isdigit(current) || '.' == current){
@@ -336,7 +338,7 @@ class Parser{
                     arguments.push_back(idstr);
                 }
 
-                if (current == '(') {
+                if (current == ')') {
                     next();
                     return make_unique<FunctionType>(name, move(arguments));
                 }
