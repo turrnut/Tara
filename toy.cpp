@@ -35,7 +35,11 @@
 #include "utils/files.h"
 using namespace std;
 
-void HandleDefinition()
+/**
+ * This function should be called whenever a function definition
+ * expression is t
+*/
+void HandleFunctionDefinition()
 {
     if (Parser::parseFunctionDefiniton())
     {
@@ -92,7 +96,7 @@ void run(string filename, string text)
             next();
             break;
         case tok_fun:
-            HandleDefinition();
+            HandleFunctionDefinition();
             break;
         case tok_im:
             HandleImport();
