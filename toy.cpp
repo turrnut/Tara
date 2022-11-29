@@ -15,6 +15,18 @@
  */
 #ifndef TOY
 #define TOY
+
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -59,12 +71,16 @@ void HandleTopLevel()
     }
 }
 
+/**
+ * Execute the code. First argument is the name of the file and
+ * the second argument is the text in the code file
+*/
 void run(string filename, string text)
 {
     setfilename(filename);
     settext(text);
     setbinpriority();
-    while (current = next())
+    while ((current = next()))
     {
         if (current == EOF)
         {
@@ -96,15 +112,7 @@ int main(int argc, char const *argv[])
         {
             string text;
 
-            // try
-            // {
             text = readFile(argv[1]);
-            // }
-            // catch (exception e)
-            // {
-            //     cout << "ERROR: Cannot open the file" << argv[1];
-            //     return 1;
-            // }
             run(argv[1], text);
         }
         else

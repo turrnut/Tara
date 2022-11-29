@@ -30,6 +30,17 @@
 #ifndef LOAD
 #define LOAD
 
+#include "llvm/ADT/APFloat.h"
+#include "llvm/ADT/STLExtras.h"
+#include "llvm/IR/BasicBlock.h"
+#include "llvm/IR/Constants.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Function.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/IR/Verifier.h"
 #include <vector>
 #include <iostream>
 #include <cstdlib>
@@ -61,7 +72,7 @@ long long get()
 {
     return lexconfig.getcursor();
 }
-void set(long long l)
+void setcursor(long long l)
 {
     lexconfig.setcursor(l);
 }
@@ -100,7 +111,7 @@ static int lex()
     {
         if (get() == -1)
         {
-            set(0);
+            setcursor(0);
             lexconfig.setlcount(1);
         }
         static int current = text[get()];
@@ -114,11 +125,11 @@ static int lex()
         lexconfig.setccount(1 + currentCCount);
         if (current == '(')
         {
-            set(get() + 1);
+            setcursor(get() + 1);
             current = text[get()];
             if (current == '(')
             {
-                set(get() + 1);
+                setcursor(get() + 1);
                 current = text[get()];
             }
             return '(';
@@ -126,11 +137,11 @@ static int lex()
 
         if (current == ')')
         {
-            set(get() + 1);
+            setcursor(get() + 1);
             current = text[get()];
             if (current == ')')
             {
-                set(get() + 1);
+                setcursor(get() + 1);
                 current = text[get()];
             }
             return ')';
@@ -143,13 +154,13 @@ static int lex()
         }
         if (current == '\n' || current == '\r' || current == '\t' || current == ' ')
         {
-            set(get() + 1);
+            setcursor(get() + 1);
             current = text[get()];
             continue;
         }
         if (isspace(current))
         {
-            set(get() + 1);
+            setcursor(get() + 1);
             continue;
         }
         if (isalpha(current))
@@ -158,7 +169,7 @@ static int lex()
             while (isalnum((current = text[get() + 1])))
             {
                 idstr += current;
-                set(get() + 1);
+                setcursor(get() + 1);
             }
             if (idstr == "fun")
                 return tok_fun;
@@ -174,7 +185,7 @@ static int lex()
             {
                 num += current;
                 current = text[get() + 1];
-                set(get() + 1);
+                setcursor(get() + 1);
             } while (isdigit(current) || '.' == current);
             numval = strtod(num.c_str(), 0);
             return tok_num;
@@ -184,7 +195,7 @@ static int lex()
             do
             {
                 current = text[get() + 1];
-                set(get() + 1);
+                setcursor(get() + 1);
             } while (current != EOF && current != '\n' && current != '\r');
             if (current != EOF)
             {
