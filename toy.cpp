@@ -37,11 +37,11 @@ using namespace std;
 
 /**
  * This function should be called whenever a function definition
- * expression is t
-*/
+ * expression is detected
+ */
 void HandleFunctionDefinition()
 {
-    if (Parser::parseFunctionDefiniton())
+    if (Parser::parseFunctionDefinition())
     {
         fprintf(stderr, "Parsed a function definition.\n");
     }
@@ -78,7 +78,7 @@ void HandleTopLevel()
 /**
  * Execute the code. First argument is the name of the file and
  * the second argument is the text in the code file
-*/
+ */
 void run(string filename, string text)
 {
     setfilename(filename);
@@ -86,14 +86,25 @@ void run(string filename, string text)
     setbinpriority();
     while ((current = next()))
     {
-        if (current == EOF)
+        if (current == tok_eof)
+        {
+            return;
+        }
+
+        if(current == -1)
         {
             return;
         }
         switch (current)
         {
+        case tok_eof:
+            return;
         case ';':
-            next();
+            current = next();
+            if (current == ';')
+            {
+                return;
+            }
             break;
         case tok_fun:
             HandleFunctionDefinition();
@@ -110,21 +121,25 @@ void run(string filename, string text)
 
 int main(int argc, char const *argv[])
 {
-    if (argc == 2)
+    if (argc != 2)
     {
-        if (exists(argv[1]))
-        {
-            string text;
-
-            text = readFile(argv[1]);
-            run(argv[1], text);
-        }
-        else
-        {
-            cout << "ERROR: File does not exists: " << argv[1];
-            return 1;
-        }
+        cout << "ERROR: No input file(s)" << "\n";
+        return 1;
     }
+
+    if (exists(argv[1]))
+    {
+        string text;
+
+        text = readFile(argv[1]);
+        run(argv[1], text);
+    }
+    else
+    {
+        cout << "ERROR: File does not exists: " << argv[1];
+        return 1;
+    }
+
     return 0;
 }
 

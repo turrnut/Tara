@@ -109,6 +109,7 @@ static int lex()
     long long i = 0;
     while (true)
     {
+        
         if (get() == -1)
         {
             setcursor(0);
@@ -116,7 +117,7 @@ static int lex()
         }
         static int current = text[get()];
 
-        if (current == EOF || get() >= text.length() - 1)
+        if (current == EOF || get() >= text.length() - 1 || current <= 31 || current == 127)
         {
             return tok_eof;
         }
@@ -202,8 +203,27 @@ static int lex()
                 return lex();
             }
         }
+        setcursor(get() + 1);
+        current = text[get()];
         int character = current;
-        current = text[get() + 1];
+        if (isalpha(character))
+        {
+            idstr = current;
+            while (isalnum((current = text[get() + 1])))
+            {
+                idstr += current;
+                setcursor(get() + 1);
+            }
+            if (idstr == "fun")
+                return tok_fun;
+            if (idstr == "import")
+                return tok_im;
+
+            return tok_id;
+        }
+        if(isspace(character)) {
+            return lex();
+        }
         return character;
     }
 }
@@ -503,7 +523,7 @@ public:
      * be called whenever there is an function definition
      * statement
      */
-    static unique_ptr<Function> parseFunctionDefiniton()
+    static unique_ptr<Function> parseFunctionDefinition()
     {
         next();
         auto funtype = parseFunctionType();
@@ -604,7 +624,9 @@ public:
         switch (current)
         {
         default:
-            error("unkown token when parsing an expression");
+            if (current <= 31 || current == 127)
+                return nullptr;
+            return error("unkown token when parsing an expression");
         case tok_id:
             return parseId();
         case tok_num:
