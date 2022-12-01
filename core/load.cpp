@@ -109,7 +109,7 @@ static int lex()
     long long i = 0;
     while (true)
     {
-        
+
         if (get() == -1)
         {
             setcursor(0);
@@ -117,7 +117,7 @@ static int lex()
         }
         static int current = text[get()];
 
-        if (current == EOF || get() >= text.length() - 1 || current <= 31 || current == 127)
+        if (current == EOF || get() >= text.length())
         {
             return tok_eof;
         }
@@ -221,7 +221,8 @@ static int lex()
 
             return tok_id;
         }
-        if(isspace(character)) {
+        if (isspace(character))
+        {
             return lex();
         }
         return character;
@@ -504,7 +505,8 @@ public:
             if (current == ')')
             {
                 next();
-                return make_unique<FunctionType>(name, move(arguments));
+                auto res = make_unique<FunctionType>(name, move(arguments));
+                return res;
             }
             error("Expected ')' in function definition", PARSE_ERROR);
             return nullptr;
@@ -545,7 +547,8 @@ public:
     static unique_ptr<FunctionType> parseImport()
     {
         next();
-        return parseFunctionType();
+        auto res = parseFunctionType();
+        return res;
     }
 
     /**

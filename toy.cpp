@@ -84,14 +84,11 @@ void run(string filename, string text)
     setfilename(filename);
     settext(text);
     setbinpriority();
-    while ((current = next()))
+    bool isnext = true;
+    while (isnext == true ? next() : current)
     {
+        isnext = true;
         if (current == tok_eof)
-        {
-            return;
-        }
-
-        if(current == -1)
         {
             return;
         }
@@ -99,18 +96,16 @@ void run(string filename, string text)
         {
         case tok_eof:
             return;
+        case ')':
+            break;
         case ';':
-            current = next();
-            if (current == ';')
-            {
-                return;
-            }
             break;
         case tok_fun:
             HandleFunctionDefinition();
             break;
         case tok_im:
             HandleImport();
+            isnext = false;
             break;
         default:
             HandleTopLevel();
@@ -136,7 +131,7 @@ int main(int argc, char const *argv[])
     }
     else
     {
-        cout << "ERROR: File does not exists: " << argv[1];
+        cout << "ERROR: File does not exists: " << argv[1] << "\n";
         return 1;
     }
 
