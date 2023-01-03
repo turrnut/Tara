@@ -1,4 +1,4 @@
-## 💡 This is an still developing project of the Tara programming language based on LLVM.
+## 💡 This is a project of the Tara programming language based on LLVM.
 ### Can you contribute? YES! [Click Here](/CONTRIBUTING.md) to see how you can contribute
 🧪 status: unfinished<br/>
 🧑 author: turrnut<br/>
