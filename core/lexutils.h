@@ -19,8 +19,10 @@
  */
 #include <iostream>
 using namespace std;
+
 #ifndef LEXUTILS
 #define LEXUTILS
+
 class LexerConfig
 {
     long long cursor;
@@ -28,39 +30,48 @@ class LexerConfig
     long long ccount;
     string filename;
     string text;
-
+    
 public:
     LexerConfig()
     {
         this->cursor = -1;
     }
+
     ~LexerConfig()
     {
+
     }
+
     LexerConfig(long long l)
     {
         this->cursor = l;
     }
+
     long long getcursor()
     {
         return this->cursor;
     }
+
     void setcursor(long long l)
     {
         this->cursor = l;
     }
+
     string getfilename()
     {
         return this->filename;
     }
+
     void setfilename(string name)
     {
         this->filename = name;
     }
+
     string gettext()
     {
         return this->text;
     }
+
     void settext(string filetext)
     {
         this->text = filetext;

@@ -39,41 +39,55 @@ using namespace std;
  * This function should be called whenever a function definition
  * expression is detected
  */
-void HandleFunctionDefinition()
+void DoFunctionDefinition()
 {
-    if (Parser::parseFunctionDefinition())
-    {
-        fprintf(stderr, "Parsed a function definition.\n");
-    }
-    else
-    {
+    auto ast = Parser::parseFunctionDefinition();
+    if (!ast) {
         next();
+    }
+    else {
+        auto *ir = ast->codegen();
+        if (ir){
+            fprintf(stderr, "function defintion detected ->");
+            ir->print(errs());
+            cout << "\n";
+        }
     }
 }
 
-void HandleImport()
+void DoImport()
 {
-    if (Parser::parseImport())
-    {
-        fprintf(stderr, "Parsed an import\n");
-    }
-    else
-    {
+    auto ast = Parser::parseImport();
+    if (!ast) {
         next();
+    }
+    else {
+        auto *ir = ast->codegen();
+        if (ir){
+            fprintf(stderr, "import detected ->");
+            ir->print(errs());
+            cout << "\n";
+        }
     }
 }
 
-void HandleTopLevel()
+void DoTopLevel()
 {
-    if (Parser::parseTopLevel())
-    {
-        fprintf(stderr, "Parsed a top-level expression\n");
-    }
-    else
-    {
+    auto ast = Parser::parseTopLevel();
+    if (!ast) {
         next();
     }
+    else {
+        auto *ir = ast->codegen();
+        if (ir){
+            fprintf(stderr, "import detected ->");
+            ir->print(errs());
+            cout << "\n";
+            ir->eraseFromParent();
+        }
+    }
 }
+
 
 /**
  * Execute the code. First argument is the name of the file and
@@ -85,6 +99,9 @@ void run(string filename, string text)
     settext(text);
     setbinpriority();
     bool isnext = true;
+
+    initialize();
+
     while (isnext == true ? next() : current)
     {
         isnext = true;
@@ -101,14 +118,14 @@ void run(string filename, string text)
         case ';':
             break;
         case tok_fun:
-            HandleFunctionDefinition();
+            DoFunctionDefinition();
             break;
         case tok_im:
-            HandleImport();
+            DoImport();
             isnext = false;
             break;
         default:
-            HandleTopLevel();
+            DoTopLevel();
             break;
         }
     }
