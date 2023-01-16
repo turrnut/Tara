@@ -10,12 +10,15 @@
 #
 # Makefile
 # Build an executable on a Linux Machine
-# Require to have Clang installed
+# Require to have Clang and LLVM installed
 
 .PHONY: build install
+
+# The build command build the actual executable
 build:
 	clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o toy.out
 
+# The install command install the required packages for you
 install:
 	sudo apt-get update
 	sudo apt-get install clang

@@ -73,10 +73,11 @@ enum Token
 
 static string idstr;
 static double numval;
+
 static LLVMContext context;
-static IRBuilder<> builder(context);
+static IRBuilder<> Builder(context);
 static std::unique_ptr<Module> mod;
-static std::map<std::string, Value *> valuesmap;
+static std::map<std::string, Value*> valuesmap;
 
 // functions
 
@@ -395,11 +396,12 @@ public:
         this->val = value;
     }
 
-    Value *codegen()
-    {
-        return ConstantFP::get(context, APFloat(this->val));
-    }
+    Value *codegen() override;
 };
+
+Value* NumberNode::codegen() {
+    return ConstantFP::get(context, APFloat(this->val));
+}
 
 /**
  * this node represent a variable definition
@@ -413,15 +415,15 @@ public:
     {
         this->name = varname;
     }
-    Value *codegen()
-    {
-        Value *value = valuesmap[this->name];
-        if (value)
-            return value;
-        error::error("Variable with the name is undefined", COMPILER_ERROR);
-        return value;
-    }
 };
+Value * VariableNode::codegen()
+{
+    Value *value = valuesmap[this->name];
+    if (value)
+        return value;
+    error::error("Variable with the name is undefined", COMPILER_ERROR);
+    return value;
+}
 
 /**
  * This class represent a function type
