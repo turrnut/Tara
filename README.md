@@ -1,5 +1,5 @@
 ## 💡 This is a project of the Tara programming language based on LLVM.
-### Can you contribute? YES! [Click Here](/CONTRIBUTING.md) to see how you can contribute
+### Can you contribute? YES! [Click Here](markdown/CONTRIBUTING.md) to see how you can contribute
 🧪 status: unfinished<br/>
 🧑 author: turrnut<br/>
 **📰 news**: We are starting the IR generation
