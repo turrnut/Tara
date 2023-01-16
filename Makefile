@@ -12,6 +12,11 @@
 # Build an executable on a Linux Machine
 # Require to have Clang installed
 
-.PHONY: build
+.PHONY: build install
 build:
 	clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs core` -o toy.out
+
+install:
+	sudo apt-get update
+	sudo apt-get install clang
+	sudo apt-get install llvm
