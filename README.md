@@ -6,7 +6,7 @@
 
 Tara is a programming language created by turrnut, name after the plantation in *Gone With the Wind*, its a compiled language based on the LLVM toolchain, known for its extreme performance and simple syntax. Although its still under development, we suggest you to contribute to this project or use the source code as a template to create your own.
 
-#### How to reach me:[Click Here](https://discord.gg/xQXK38PwEn) to join my discord server!
+#### 📩 How to reach me:[Click Here](https://discord.gg/xQXK38PwEn) to join my discord server!
 
 |Version|Status|Note|
 |-------|------|----|
