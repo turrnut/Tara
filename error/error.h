@@ -26,7 +26,7 @@ namespace error {
     {
         ERROR = 1,
         PARSE_ERROR = 2,
-        COMPILER_ERROR = 3
+        IR_ERROR = 3
     } errtypes;
     /**
      * This functions prints the error according to its name and
@@ -61,9 +61,9 @@ namespace error {
      * errors are not usually caused by incorrect syntaxes but unexpected
      * exceptions that occured in the program
      */
-    unique_ptr<Node> compilererror(const char *msg)
+    unique_ptr<Node> irerror(const char *msg)
     {
-        return errorWithName(msg, "CompilerError");
+        return errorWithName(msg, "IRError");
     }
 
     /**
@@ -80,8 +80,8 @@ namespace error {
         case PARSE_ERROR:
             return parseerror(msg);
             break;
-        case COMPILER_ERROR:
-            return compilererror(msg);
+        case IR_ERROR:
+            return irerror(msg);
             break;
         default:
             return error(msg);

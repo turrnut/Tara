@@ -42,49 +42,46 @@ using namespace std;
 void DoFunctionDefinition()
 {
     auto ast = Parser::parseFunctionDefinition();
-    if (!ast) {
-        next();
-    }
-    else {
-        auto *ir = ast->codegen();
-        if (ir){
+    if (ast) {
+        if (auto *ir = ast->codegen()){
             fprintf(stderr, "function defintion detected ->");
             ir->print(errs());
             cout << "\n";
         }
+    }
+    else {
+        next();
     }
 }
 
 void DoImport()
 {
     auto ast = Parser::parseImport();
-    if (!ast) {
-        next();
-    }
-    else {
-        auto *ir = ast->codegen();
-        if (ir){
+    if (ast) {
+        if (auto *ir = ast->codegen()){
             fprintf(stderr, "import detected ->");
             ir->print(errs());
             cout << "\n";
         }
+    }
+    else {
+        next();
     }
 }
 
 void DoTopLevel()
 {
     auto ast = Parser::parseTopLevel();
-    if (!ast) {
-        next();
-    }
-    else {
-        auto *ir = ast->codegen();
-        if (ir){
+    if (ast) {
+        if (auto *ir = ast->codegen()){
             fprintf(stderr, "import detected ->");
             ir->print(errs());
             cout << "\n";
             ir->eraseFromParent();
         }
+    }
+    else {
+        next();
     }
 }
 

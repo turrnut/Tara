@@ -75,7 +75,7 @@ static string idstr;
 static double numval;
 
 static LLVMContext context;
-static IRBuilder<> Builder(context);
+static IRBuilder<> builder(context);
 static std::unique_ptr<Module> mod;
 static std::map<std::string, Value*> valuesmap;
 
@@ -104,16 +104,6 @@ string gettext()
 void settext(string filetext)
 {
     lexconfig.settext(filetext);
-}
-
-/**
- * Initialize the compiler, this including the initialization
- * of the module, the context and a builder for the IR
-*/
-static void initialize(){
-    context = make_unique<LLVMContext>();
-    mod = make_unique<Module>("base module", &context);
-    builder = make_unique<IRBuilder<>>(&context);
 }
 
 /**
@@ -341,47 +331,49 @@ public:
         this->r = move(right);
     }
 
-    Value *codegen()
-    {
-        Value *left = this->l->codegen();
-        Value *right = this->r->codegen();
+    Value* codegen();
 
-        if (!left || !right)
-            return nullptr;
-
-        switch (this->o)
-        {
-            // binpriority['>'] = 10;
-            // binpriority['<'] = 20;
-            // binpriority['+'] = 30;
-            // binpriority['-'] = 30;
-            // binpriority['/'] = 40;
-            // binpriority['*'] = 60;
-            // binpriority['^'] = 70;
-        case '+':
-            return builder.CreateFAdd(left, right, "addval");
-            break;
-        case '-':
-            return builder.CreateFSub(left, right, "subval");
-            break;
-        case '*':
-            return builder.CreateFMul(left, right, "mulval");
-            break;
-        case '/':
-            return builder.CreateFDiv(left, right, "divval");
-            break;
-        case '<':
-            left = builder.CreateFCmpULT(left, right, "cmpval");
-            return builder.CreateUIToFP(left, Type::getDoubleTy(context), "boolval");
-        case '>' :
-            left = builder.CreateFCmpULT(left, right, "cmpval");
-            return builder.CreateUIToFP(left, Type::getDoubleTy(context), "boolval");
-        default :
-            error::error("Operator invalid", COMPILER_ERROR);
-            return nullptr;
-        }
-    }
 };
+Value* BinaryNode::codegen()
+{
+    Value *left = this->l->codegen();
+    Value *right = this->r->codegen();
+
+    if (!left || !right)
+        return nullptr;
+
+    switch (this->o)
+    {
+        // binpriority['>'] = 10;
+        // binpriority['<'] = 20;
+        // binpriority['+'] = 30;
+        // binpriority['-'] = 30;
+        // binpriority['/'] = 40;
+        // binpriority['*'] = 60;
+        // binpriority['^'] = 70;
+    case '+':
+        return builder.CreateFAdd(left, right, "addval");
+        break;
+    case '-':
+        return builder.CreateFSub(left, right, "subval");
+        break;
+    case '*':
+        return builder.CreateFMul(left, right, "mulval");
+        break;
+    case '/':
+        return builder.CreateFDiv(left, right, "divval");
+        break;
+    case '<':
+        left = builder.CreateFCmpULT(left, right, "ltcmpval");
+        return builder.CreateUIToFP(left, Type::getDoubleTy(context), "boolval");
+    case '>':
+        left = builder.CreateFCmpUGT(left, right, "gtcmpval");
+        return builder.CreateUIToFP(left, Type::getDoubleTy(context), "boolval");
+    default:
+        error::error("Operator invalid", IR_ERROR);
+        return nullptr;
+    }
+}
 
 /**
  * This node represent a number
@@ -415,13 +407,15 @@ public:
     {
         this->name = varname;
     }
+
+    Value* codegen();
 };
 Value * VariableNode::codegen()
 {
     Value *value = valuesmap[this->name];
     if (value)
         return value;
-    error::error("Variable with the name is undefined", COMPILER_ERROR);
+    error::error("Variable with the name is undefined", IR_ERROR);
     return value;
 }
 
@@ -447,18 +441,22 @@ public:
         return this->name;
     }
 
-    Function *codegen()
-    {
-        vector<Type*> doubleslist(this->args.size(), Type::getDoubleTy(context));
-        FunctionType *funtype = FunctionType::get(Type::getDoubleTy(context), doubleslist, false);
-        Function *fun = Function::Create(funtype, Function::ExternalLinkage, this->name, mod.get());        
-        unsigned index = 0;
-        for(auto &arg : *fun->args()) {
-            arg.setName(args[index++]);
-        }
-        return fun;
-    }
+    Function* codegen();
+
 };
+
+Function* FunctionProtoType::codegen()
+{
+    std::vector<Type*> Doubles(this->args.size(), Type::getDoubleTy(context));
+    FunctionType *funtype = FunctionType::get(Type::getDoubleTy(context), Doubles, false);
+    Function *fun = Function::Create(funtype, Function::ExternalLinkage, this->name, mod.get());        
+    unsigned index = 0;
+    for(auto &arg : *fun->args()) {
+        arg.setName(args[index++]);
+    }
+    return fun;
+}
+
 /**
  * This class represent a function
  */
@@ -474,37 +472,39 @@ public:
         this->content = move(body);
     }
 
-    Function *codegen()
-    {
-        Function *fun = mod->getFunction(this->funtype->getname());
-        if(!fun)
-            fun = this->funtype->codegen();
-        if(!fun) 
-            return nullptr;
-        if(!fun->empty()) {
-            error::error("Function cannot be redefined", COMPILER_ERROR);
-            return (Function*)nullptr;
-        }
+    Function* codegen();
 
-        BasicBlock *basicblock = BasicBlock::Create(context,"entry", fun);
-        builder.SetInsertPoint(basicblock);
-
-        valuesmap.clear();
-
-        for(auto &arg : fun->args())
-            valuesmap[arg.getname()] = &arg;
-        if (Value *returnvalue = this->content->codegen())
-        {
-            builder.CreateRet(returnvalue);
-            verifyFunction(*fun);
-            return fun;
-
-        }
-        fun->eraseFromParent();
-        return nullptr;
-    }
 };
 
+Function* FunctionInstance::codegen()
+{
+    Function *fun = mod->getFunction(this->funtype->getname());
+    if(!fun)
+        fun = this->funtype->codegen();
+    if(!fun) 
+        return nullptr;
+    if(!fun->empty()) {
+        error::error("Function cannot be redefined", IR_ERROR);
+        return (Function*)nullptr;
+    }
+
+    BasicBlock *basicblock = BasicBlock::Create(context,"entry", fun);
+    builder.SetInsertPoint(basicblock);
+
+    valuesmap.clear();
+
+    for(auto &arg : fun->args())
+        valuesmap[arg.getName()] = &arg;
+    if (Value *returnvalue = this->content->codegen())
+    {
+        builder.CreateRet(returnvalue);
+        verifyFunction(*fun);
+        return fun;
+
+    }
+    fun->eraseFromParent();
+    return nullptr;
+}
 
 /**
  * This node represent the expression of an
@@ -523,29 +523,31 @@ public:
         this->args = move(arguments);
     }
 
-    Value *codegen()
-    {
-        Function *call = mod->getFunction(this->name);
-        if (!call)
-        {
-            error::error("Reference of a function that does not exists", COMPILER_ERROR);
-            return nullptr;
-        }
+    Value *codegen();
 
-        if (call->arg_size() != this->args.size()) 
-        {
-            error::error("Invalid amount of argument(s) passed in", COMPILER_ERROR);
-        }
-
-        vector<Value*> argslist;
-        for(unsigned i = 0, s = this->args.size(); i != s; ++i) {
-            argslist.push_back(this->args[i]->codegen());
-            if(!argslist.back()) return nullptr;
-        }
-
-        return builder.CreateCall(call, argslist, "callfun");
-    }
 };
+
+Value *FunCallNode::codegen()
+{
+    Function *call = mod->getFunction(this->name);
+    if (!call)
+    {
+        error::error("Reference of a function that does not exists", IR_ERROR);
+        return nullptr;
+    }
+
+    if (call->arg_size() != this->args.size()) 
+    {
+        error::error("Invalid amount of argument(s) passed in", IR_ERROR);
+    }
+
+    std::vector<Value*> argslist;
+    for(unsigned i = 0, s = this->args.size(); i != s; ++i) {
+        argslist.push_back(this->args[i]->codegen());
+        if(!argslist.back()) return nullptr;
+    }
+    return builder.CreateCall(call, argslist, "callfun");
+}
 
 /**
  * The Parser class parse the tokens. By doing so, several functions were
@@ -788,4 +790,5 @@ public:
         }
     }
 };
+
 #endif
