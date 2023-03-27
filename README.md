@@ -11,5 +11,3 @@ Tara is a programming language created by turrnut, name after the plantation in 
 |-------|------|----|
 |1.0|unfinished|    |
 
-## Build
-See [this file](markdown/BUILD.md) for information about building
