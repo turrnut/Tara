@@ -1,15 +1,31 @@
+/**
+ * Author: turrnut
+ * Copyrighted © turrnut under the Apache 2.0 license
+ * 
+ * We hoped that you will use this piece of open source
+ * software fairly. read the LICENSE for details for
+ * more details about how you can use it, you have freedom
+ * to distribute and use this file in your project. However,
+ * you will have to state changes you made and include the
+ * orginal author of this file.
+ * 
+ * lexer.cpp
+ * This file feeds the text to the lexer and break it down in
+ * small fragments known as tokens. These tokens are then
+ * returned and transferred to the parser.
+ * 
+*/
+#pragma once
 #include <iostream>
 #include <vector>
 #include "errors.cpp"
+#include "positions.c"
+
 using namespace std;
 typedef string str;
-static string content;
 
 class Thing{
-    public:
-        str get_string() {
-            return "";
-        }
+    
 };
 
 enum TokenType{
@@ -69,27 +85,29 @@ ostream &operator << (ostream &os, Token const &t) {
 
 class Lexer{
     str content;
-    int pos;
+    str fname;
     char current;
     vector<Token> tokens;
     public:
-        Lexer(str content) {
-            this->content = content;
-            this->pos = -1;
+        Lexer(str file_name, str file_text) {
+            this->fname = file_name;
+            this->content = file_text;
             this->current = '\0';
         }
         void step(){
-            this->pos++;
-            if (this->pos < this->content.size())
-                this->current = this->content[pos];
+            forward(this->current);
+            if (position.index < this->content.size())
+                this->current = this->content[position.index];
         } 
         void back(){
-            this->pos--;
-            if (this->pos < this->content.size())
-                this->current = this->content[pos];
+            backward(this->current);
+            if (position.index < this->content.size())
+                this->current = this->content[position.index];
         } 
         vector<Token> lexer() {
+            init_pos();
             do {
+                cout << "current position: " << position.index << "," << position.line << "," << position.col << "\n";
                 step();
                 if (this->current == '\t' || this->current == '\r' || this->current == ' ' || this->current == '\n') {
                     continue;
@@ -117,14 +135,18 @@ class Lexer{
                             break;
                         
                         default:
+                            Position where = clone();
+
                             str character(1, this->current);
+                            str fname = this->fname;
                             step();
-                            vector<Token> empty;
-                            error(ILLEGAL_CHARACTER,"Illegal Character \'"+character+"\'");
+                            
+                            string message = "Illegal Character \'"+character+"\'";
+                            error(ILLEGAL_CHARACTER, message, where, fname);
                         
                     }
                 }
-            }while (this->pos <= this->content.length());
+            }while (position.index <= this->content.length());
             
 
             return tokens;
@@ -138,7 +160,12 @@ class Lexer{
             string numstr = "";
             int dots = 0;
             
-            while(this->pos < this->content.size() && (isdigit(this->current) || this->current == '.')) {
+            while(position.index < this->content.size() && (isdigit(this->current) || this->current == '.' || this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ')) {
+                if (this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ') {
+                    step();
+                    continue;
+                }
+                
                 numstr += current;
                 if(this->current == '.') {
                     if(dots == 1)
@@ -155,19 +182,11 @@ class Lexer{
             }
 
             Token token(DECIMAL, stold(numstr));
-            cout<< "!" << stold(numstr) << "!" << "\n";
             return token;
 
         }  
 
 };
-
-vector<Token> execute(str text) {
-    content = text;
-    Lexer lexer(content);
-    vector<Token> tokens = lexer.lexer();
-    return tokens;
-}
 
 
 
