@@ -28,6 +28,9 @@ class Thing{
     
 };
 
+/**
+ * A list of Token types
+*/
 enum TokenType{
     INTEGER = -1,
     DECIMAL= -2,
@@ -40,6 +43,13 @@ enum TokenType{
     STRING = -9
 };
 
+/**
+ * The Token class represents a single token. Each token must
+ * have a TokenType and optionally a value. Tokens without type
+ * will not be allowed. TokenTypes are defined in the TokenType
+ * enum.
+ * 
+*/
 class Token: public Thing {
     public:
         TokenType type;
@@ -70,6 +80,12 @@ class Token: public Thing {
         }
 };
 
+/**
+ * Operator override so tokens can be printed to the standard
+ * output. The method of printing a token varies according to
+ * its type. Sometimes used for testing purposes.
+ * 
+*/
 ostream &operator << (ostream &os, Token const &t) {
     if (t.isNull)
         return os << "<" << to_string(t.type) << ">";
@@ -83,6 +99,11 @@ ostream &operator << (ostream &os, Token const &t) {
     }
 }
 
+/**
+ * The Lexer class will take in some text and convert it to
+ * a list of tokens and return it.
+ * 
+*/
 class Lexer{
     str content;
     str fname;
