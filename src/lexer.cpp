@@ -24,6 +24,8 @@
 using namespace std;
 typedef string str;
 
+static bool stepnext = true;
+
 class Thing{
     
 };
@@ -40,7 +42,14 @@ enum TokenType{
     DIVIDE= -6,
     LEFT_PARENTHESE= -7,
     RIGHT_PARENTHESE= -8,
-    STRING = -9
+    FUNCTION_DEFITION = -9,
+    VARIABLE_DEFINITION = -10,
+    STRING = -11,
+    IMPORT_STATEMENT = -12,
+    IDENTIFIER = -13,
+    COMMA = -14,
+    POWER = -15,
+    NEW_LINE = -16
 };
 
 /**
@@ -53,31 +62,17 @@ enum TokenType{
 class Token: public Thing {
     public:
         TokenType type;
+        Position position;
 
         long long value;
         long double decvalue;
         str strvalue;
         bool isNull;
-        Token(TokenType type){
-            this->type = type;
-            this->isNull = true;
-        }
-        Token(TokenType type, long long value){
-            this->type = type;
-            this->value = value;
-            this->isNull = false;
-        }
-        Token(TokenType type, str strvalue){
-            this->type = type;
-            this->strvalue = value;
-            this->isNull = false;
-        }
-
-        Token(TokenType type, long double decvalue){
-            this->type = type;
-            this->decvalue = decvalue;
-            this->isNull = false;
-        }
+        Token() = default;
+        Token(TokenType type) : type(type), isNull(true), position(clone()){}
+        Token(TokenType type, long long value) : type(type), value(value), isNull(false), position(clone()){}
+        Token(TokenType type, str strvalue) : type(type), strvalue(strvalue), isNull(false), position(clone()){}
+        Token(TokenType type, long double decvalue) : type(type), decvalue(decvalue), isNull(false), position(clone()){}
 };
 
 /**
@@ -92,10 +87,11 @@ ostream &operator << (ostream &os, Token const &t) {
     else {
         if (t.type == INTEGER)
             return os << "<" << to_string(t.type) + ":" + to_string(t.value) << ">";
-        else if (t.type == STRING)
+        else if (t.type == STRING || t.type == FUNCTION_DEFITION || t.type == IMPORT_STATEMENT || t.type == IDENTIFIER) 
             return os << "<" << to_string(t.type) + ":" + t.strvalue << ">";
         else if (t.type == DECIMAL) 
             return os << "<" << to_string(t.type) + ":" + to_string(t.decvalue) << ">";
+        
     }
 }
 
@@ -110,15 +106,17 @@ class Lexer{
     char current;
     vector<Token> tokens;
     public:
+        ~Lexer(){}
         Lexer(str file_name, str file_text) {
             this->fname = file_name;
             this->content = file_text;
             this->current = '\0';
         }
-        void step(){
+        int step(){
             forward(this->current);
             if (position.index < this->content.size())
                 this->current = this->content[position.index];
+            return this->current;
         } 
         void back(){
             backward(this->current);
@@ -128,13 +126,20 @@ class Lexer{
         vector<Token> lexer() {
             init_pos();
             do {
-                cout << "current position: " << position.index << "," << position.line << "," << position.col << "\n";
+
                 step();
-                if (this->current == '\t' || this->current == '\r' || this->current == ' ' || this->current == '\n') {
+                if (this->current == '\t' || this->current == '\r' || this->current == ' ' || this->current == '\n' || this->current == ';') {
+                    if (this->current == ';') {
+                        Token token(NEW_LINE);
+                        tokens.push_back(token);
+                    }
                     continue;
                 }  else if (isdigit(current) || current == '.') {
                     tokens.push_back(number());
-                } else {
+                } else if (isalpha(this->current)) {
+                    tokens.push_back(id());
+                }
+                else {
                     switch(this->current) {
                         case '+':
                             add(tokens, Token(PLUS));
@@ -153,6 +158,12 @@ class Lexer{
                             break;
                         case ')':
                             add(tokens, Token(RIGHT_PARENTHESE));
+                            break;
+                        case '^':
+                            add(tokens, Token(POWER));
+                            break;
+                        case ',':
+                            add(tokens, Token(POWER));
                             break;
                         
                         default:
@@ -175,8 +186,26 @@ class Lexer{
 
         void add(vector<Token> list, Token thing) {
             tokens.push_back(thing);
-
         }   
+
+        Token id() {
+            if(isalpha(this->current)){
+                str idstr = "";
+                idstr += this->current;
+                while (isalnum((this->current = this->step())))
+                    idstr += this->current;
+                Token token;
+                if (idstr == "fun")
+                    token = Token(FUNCTION_DEFITION, idstr);
+                if (idstr == "import")
+                    token = Token(IMPORT_STATEMENT, idstr);
+                else 
+                    token = Token(IDENTIFIER, idstr);
+                back();
+                return token;
+            }
+        }
+
         Token number() {
             string numstr = "";
             int dots = 0;

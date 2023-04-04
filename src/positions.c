@@ -38,7 +38,7 @@ Position clone(Position existingPosition) {
 
 void init_pos() {
     position.line = 1;
-    position.index = 0;
+    position.index = -1;
     position.col = 0;
 }
 

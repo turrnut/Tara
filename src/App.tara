@@ -1,1 +1,2 @@
-( 1 +   121   ())   /           6 .81234293$
+import abc;
+fun a(arg,hi) arg^hi;

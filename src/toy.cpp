@@ -17,13 +17,18 @@
 #include <vector>
 #include "files.h"
 #include "lexer.cpp"
+#include "parser.cpp"
 using namespace std;
 typedef string str;
 
-vector<Token> execute(str fname, str content) {
+void execute(str fname, str content) {
     Lexer lexer(fname, content);
     vector<Token> tokens = lexer.lexer();
-    return tokens;
+    Parser parser(tokens);
+    parser.getNode();
+    // for(int i = 0 ; i < tokens.size() ; i++) {
+    //     cout << tokens[i];
+    // }
 }
 
 int main(int argc, char const *argv[])
@@ -45,10 +50,8 @@ int main(int argc, char const *argv[])
     }
     string ftext = contents;
     try{
-        vector<Token> tokens = execute(filename, contents);
-        for(long long l = 0; l < tokens.size(); l ++) {
-            cout << tokens[l] << ",";
-        }
+        execute(filename, contents);
+        
     } catch(...) {
         cout << "Unknown Error Occured.\n";
     }
