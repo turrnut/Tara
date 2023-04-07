@@ -13,6 +13,7 @@
  * 
  * 
 */
+#pragma once
 #include <iostream>
 #include <stdlib.h>
 #include "positions.c"
@@ -21,7 +22,8 @@ using namespace std;
 typedef string str;
 
 enum ErrorType{
-    ILLEGAL_CHARACTER
+    ILLEGAL_CHARACTER,
+    EXPECTED_TOKEN
 };
 void quit() {
     exit(EXIT_FAILURE);    
@@ -32,7 +34,10 @@ void error(ErrorType name, str msg, Position where, str fname){
     cout << "\a\nError generated while execution." << endl;
     switch (name) {
         case ILLEGAL_CHARACTER:
-            cout << "\tIllegalCharacterError" << " : " << msg << endl; 
+            cout << "\tIllegalCharacterError : " << msg << endl; 
+            break;
+        case EXPECTED_TOKEN:
+            cout << "\tTokenExpectedError : " << msg << endl;
             break;
         default:
             return;

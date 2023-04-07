@@ -25,7 +25,7 @@ using namespace std;
 typedef string str;
 
 static bool stepnext = true;
-
+static str thefilename;
 class Thing{
     
 };
@@ -49,7 +49,8 @@ enum TokenType{
     IDENTIFIER = -13,
     COMMA = -14,
     POWER = -15,
-    NEW_LINE = -16
+    NEW_LINE = -16,
+    END_OF_FILE = -17
 };
 
 /**
@@ -82,7 +83,7 @@ class Token: public Thing {
  * 
 */
 ostream &operator << (ostream &os, Token const &t) {
-    if (t.isNull)
+    if (t.isNull || t.type == VARIABLE_DEFINITION)
         return os << "<" << to_string(t.type) << ">";
     else {
         if (t.type == INTEGER)
@@ -108,6 +109,7 @@ class Lexer{
     public:
         ~Lexer(){}
         Lexer(str file_name, str file_text) {
+            thefilename = file_name;
             this->fname = file_name;
             this->content = file_text;
             this->current = '\0';
@@ -129,7 +131,7 @@ class Lexer{
 
                 step();
                 if (this->current == '\t' || this->current == '\r' || this->current == ' ' || this->current == '\n' || this->current == ';') {
-                    if (this->current == ';') {
+                    if (this->current == '\n') {
                         Token token(NEW_LINE);
                         tokens.push_back(token);
                     }
@@ -180,12 +182,23 @@ class Lexer{
                 }
             }while (position.index <= this->content.length());
             
-
+            Token eof(END_OF_FILE);
+            tokens.push_back(eof);
             return tokens;
         }
 
         void add(vector<Token> list, Token thing) {
-            tokens.push_back(thing);
+            if (thing.type == MINUS) {
+                step();
+                if(!(isdigit(current) || current == '.')) {
+                    back();
+                    tokens.push_back(thing);
+                }
+                back();
+                tokens.push_back(number());
+
+            } else
+                tokens.push_back(thing);
         }   
 
         Token id() {
@@ -199,6 +212,10 @@ class Lexer{
                     token = Token(FUNCTION_DEFITION, idstr);
                 if (idstr == "import")
                     token = Token(IMPORT_STATEMENT, idstr);
+                if (idstr == "val") {
+                    Token v(VARIABLE_DEFINITION);
+                    return v;
+                }
                 else 
                     token = Token(IDENTIFIER, idstr);
                 back();
@@ -209,13 +226,13 @@ class Lexer{
         Token number() {
             string numstr = "";
             int dots = 0;
-            
-            while(position.index < this->content.size() && (isdigit(this->current) || this->current == '.' || this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ')) {
+
+            while(position.index < this->content.size() && (isdigit(this->current) || this->current == '-' || this->current == '.' || this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ')) {
                 if (this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ') {
                     step();
                     continue;
                 }
-                
+
                 numstr += current;
                 if(this->current == '.') {
                     if(dots == 1)

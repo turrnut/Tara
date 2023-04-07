@@ -1,2 +1,3 @@
-import abc;
-fun a(arg,hi) arg^hi;
+(val a (10))
+(val mynum(993))
+(val yourage(-77.795))

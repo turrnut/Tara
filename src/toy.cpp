@@ -21,11 +21,14 @@
 using namespace std;
 typedef string str;
 
-void execute(str fname, str content) {
+static str fname;
+void execute(str filename, str content) {
+    fname = filename;
     Lexer lexer(fname, content);
     vector<Token> tokens = lexer.lexer();
-    Parser parser(tokens);
+    Parser parser(fname, tokens);
     parser.getNode();
+
     // for(int i = 0 ; i < tokens.size() ; i++) {
     //     cout << tokens[i];
     // }
