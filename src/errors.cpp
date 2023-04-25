@@ -29,8 +29,7 @@ void quit() {
     exit(EXIT_FAILURE);    
 }
 
-
-void error(ErrorType name, str msg, Position where, str fname){
+void error(ErrorType name, str msg, Position where, str fname, bool end){
     cout << "\a\nError generated while execution." << endl;
     switch (name) {
         case ILLEGAL_CHARACTER:
@@ -44,6 +43,7 @@ void error(ErrorType name, str msg, Position where, str fname){
             
     }
     cout << "At file " << fname << ":" << where.line << ":" << where.col << endl;
+    if (end) return;
     quit();
 }
 

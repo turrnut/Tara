@@ -21,17 +21,16 @@
 using namespace std;
 typedef string str;
 
+static float version = 1.0;
 static str fname;
-void execute(str filename, str content) {
+void execute(str filename, str content, bool shell) {
     fname = filename;
-    Lexer lexer(fname, content);
+    Lexer lexer(fname, content, shell);
     vector<Token> tokens = lexer.lexer();
-    Parser parser(fname, tokens);
-    parser.getNode();
 
-    // for(int i = 0 ; i < tokens.size() ; i++) {
-    //     cout << tokens[i];
-    // }
+    for(int i = 0 ; i < tokens.size() ; i++) {
+        cout << tokens[i];
+    }
 }
 
 int main(int argc, char const *argv[])
@@ -41,7 +40,7 @@ int main(int argc, char const *argv[])
         filename = argv[1];
         string fname = filename;
     } else {
-        cout << "ERROR: no input files." << "\n";
+        cout << "ERROR: no input file.";
         return 1;
     }
     string contents = "";
@@ -53,7 +52,7 @@ int main(int argc, char const *argv[])
     }
     string ftext = contents;
     try{
-        execute(filename, contents);
+        execute(filename, contents, false);
         
     } catch(...) {
         cout << "Unknown Error Occured.\n";

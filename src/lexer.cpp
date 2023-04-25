@@ -106,10 +106,12 @@ class Lexer{
     str fname;
     char current;
     vector<Token> tokens;
+    bool isShell;
     public:
         ~Lexer(){}
-        Lexer(str file_name, str file_text) {
+        Lexer(str file_name, str file_text, bool isShell) {
             thefilename = file_name;
+            this->isShell = isShell;
             this->fname = file_name;
             this->content = file_text;
             this->current = '\0';
@@ -176,7 +178,7 @@ class Lexer{
                             step();
                             
                             string message = "Illegal Character \'"+character+"\'";
-                            error(ILLEGAL_CHARACTER, message, where, fname);
+                            error(ILLEGAL_CHARACTER, message, where, fname, this->isShell);
                         
                     }
                 }
@@ -188,17 +190,8 @@ class Lexer{
         }
 
         void add(vector<Token> list, Token thing) {
-            if (thing.type == MINUS) {
-                step();
-                if(!(isdigit(current) || current == '.')) {
-                    back();
-                    tokens.push_back(thing);
-                }
-                back();
-                tokens.push_back(number());
-
-            } else
-                tokens.push_back(thing);
+            tokens.push_back(thing);
+            
         }   
 
         Token id() {
@@ -227,7 +220,7 @@ class Lexer{
             string numstr = "";
             int dots = 0;
 
-            while(position.index < this->content.size() && (isdigit(this->current) || this->current == '-' || this->current == '.' || this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ')) {
+            while(position.index < this->content.size() && (isdigit(this->current) || this->current == '.' || this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ')) {
                 if (this->current == '\n' || this->current == '\r' || this->current == '\t' || this->current == ' ') {
                     step();
                     continue;
