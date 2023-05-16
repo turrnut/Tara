@@ -34,3 +34,5 @@
 # others
 out/
 *.tara
+/ignore
+/.vscode
