@@ -3,11 +3,11 @@
  * Copyrighted © turrnut under the Apache 2.0 license
  *
  * We hoped that you will use this piece of open source
- * software fairly. read the LICENSE for details for
- * more details about how you can use it, you have freedom
- * to distribute and use this file in your project. However,
- * you will have to state changes you made and include the
- * orginal author of this file.
+ * software fairly. read the LICENSE for more details about
+ * how you can use it, you have freedom to distribute and
+ * use this code in your project. However, you will have to
+ * state changes you made and include the orginal author of
+ * this code.
  *
  * compiler.h
  *
@@ -17,15 +17,15 @@
 
 #include "../ir/ir.h"
 
-#define STACK_SIZE 1024
+#define STACK_SIZE 1024 // 1 KiB of stack size by default
 
 typedef struct
 {
     IR *ir;
     uint8_t *bp; // byte pointer
-    Data stack[STACK_SIZE];
+    Data *stack;
     Data *stacktop;
-} Compiler;
+} RuntimeEnvironment;
 
 typedef enum
 {
@@ -34,8 +34,8 @@ typedef enum
     RUNTIME_ERROR
 } Result;
 
-void init();
-void end();
+void start_runtime_environment();
+void end_runtime_environment();
 void update_stacktop();
 void stack_push(Data data);
 int stack_is_empty();
@@ -44,6 +44,6 @@ Data stack_pop();
 uint8_t step();
 Data readData();
 
-Result compile(IR *ir);
+Result execute();
 
 #endif
