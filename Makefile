@@ -13,11 +13,13 @@
 #
 
 source_files = src/toy.c src/code/codegen.c src/code/lexer.c src/data/data.c src/ir/ir.c src/memory/memory.c src/runtime/runtime.c src/test/test.c src/utils/files.c
+output_binary = bin/tara
 
 install-packages:
 	sudo apt-get install gcc
 
 build:
-	gcc $(source_files) -o out/tara
-	./out/tara -v
+	mkdir bin || echo
+	gcc $(source_files) -o $(output_binary)
+	./bin/tara -h
 
