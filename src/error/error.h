@@ -15,6 +15,7 @@
 #ifndef error_header
 #define error_header
 typedef enum {
-    ILLEGAL_CHARACTER, UNTERMINATED_STRING
-}Error;
+    ERROR, ILLEGAL_CHARACTER, UNTERMINATED_STRING
+} Error;
+char* get_error_text(Error err);
 #endif

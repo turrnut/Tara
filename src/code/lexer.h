@@ -19,6 +19,9 @@
 #include "../ir/ir.h"
 #include "../error/error.h"
 
+/**
+ * Enumeration for every token
+*/
 typedef enum {
     ADD_TOKEN,
     AND_TOKEN, 
@@ -55,7 +58,7 @@ typedef enum {
     RCURBRACES_TOKEN,
     RETURN_TOKEN,
     RPAREN_TOKEN,
-    SCOLON_TOKEN,
+    STRING_TOKEN,
     SUB_TOKEN,
     SUPER_TOKEN,
     THIS_TOKEN,
@@ -65,6 +68,18 @@ typedef enum {
     WHILE_TOKEN
 } TokenTypes;
 
+/**
+ * Represents a token.
+ * Properties:
+ *  TokenTypes type:
+ *    the token's type
+ *  const char* first:
+ *    what is the token's first character
+ *  int len:
+ *    length of token
+ *  Position pos:
+ *    position of the token located
+*/
 typedef struct {
     TokenTypes type;
     const char* first;
@@ -72,6 +87,16 @@ typedef struct {
     Position pos;
 } Token;
 
+/**
+ * Represents a lexer.
+ * Properties:
+ *  const char* first:
+ *    first character in the current expression
+ *  const char* current:
+ *    current text being handled
+ *  Position pos:
+ *    location of the current token is located
+*/
 typedef struct {
     const char* first;
     const char* current;
@@ -83,7 +108,7 @@ Token new_error_token(Error err);
 void new_lexer(const char* src);
 Token new_token(TokenTypes ty);
 TokenTypes id_type();
-char next_char();
+char lexer_next_char();
 bool is(char ch);
 bool inNumber(char ch);
 void filter();

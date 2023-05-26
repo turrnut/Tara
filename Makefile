@@ -12,7 +12,7 @@
 # Makefile
 #
 
-source_files = src/toy.c src/code/codegen.c src/code/lexer.c src/data/data.c src/ir/ir.c src/memory/memory.c src/runtime/runtime.c src/test/test.c src/utils/files.c
+source_files = src/toy.c src/code/codegen.c src/code/lexer.c src/data/data.c src/error/error.c src/ir/ir.c src/memory/memory.c src/runtime/runtime.c src/test/test.c src/utils/files.c
 output_binary = bin/tara
 
 install-packages:

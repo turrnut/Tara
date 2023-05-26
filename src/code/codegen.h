@@ -10,12 +10,27 @@
  * this code.
  *
  * codegen.h
- *
+ * Declares the functionality needed to generate IR. Specific
+ * implementation can be found in codegen.cs
  */
 
 #ifndef codegen_header
 #define codegen_header
+#include "../runtime/runtime.h"
+#include "../ir/ir.h"
 
-void codegen(const char* src);
+/**
+ * Represents whether the execution is successful or not.
+*/
+typedef enum {
+    CODEGEN_OK,
+    CODEGEN_ERROR
+} CodeGenerationResult;
+
+/**
+ * Generates the IR, taking the source code text and IR
+ * pointer as an input.
+*/
+CodeGenerationResult codegen(const char* src);
 
 #endif

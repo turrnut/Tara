@@ -10,7 +10,8 @@
  * this code.
  *
  * base.h
- *
+ * A header that virtually every other file should include.
+ * Declare constants here. 
  */
 
 #ifndef base_header

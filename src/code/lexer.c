@@ -10,11 +10,12 @@
  * this code.
  *
  * lexer.c
+ * The lexer takes in raw source code text and convert it
+ * into a list of tokens.
  *
  */
 
 #include <stdio.h>
-#include <string.h>
 #include <string.h>
 #include "lexer.h"
 #include "../ir/ir.h"
@@ -31,18 +32,7 @@ void new_lexer(const char* src){
     };
 }
 Token new_error_token(Error err) {
-    char* m;
-    switch (err)
-    {
-    case ILLEGAL_CHARACTER:
-        m = "Illegal Character";
-        break;
-    case UNTERMINATED_STRING:
-        m = "Unterminated String";
-    default:
-        m = "Error.";
-        break;
-    }
+    char* m = get_error_text(err);
 
     Token token;
     token.type = ERROR_TOKEN;
@@ -77,7 +67,7 @@ bool is(char c) {
     f:
     return false;
 }
-char next_char() {
+char lexer_next_char() {
     lexer.current ++;
     if (peekCurrent() == '\n'){
         lexer.pos.row = 0;
@@ -90,9 +80,9 @@ void filter(){
     while(1) {
         char p = peekCurrent();
         if (p == '#') 
-            while(peekNext() != '\n' && *lexer.current != '\0') next_char();
+            while(peekNext() != '\n' && *lexer.current != '\0') lexer_next_char();
         
-        if (p == ' ' || p == '\r' || p == '\t') next_char(); else return;
+        if (p == ' ' || p == '\r' || p == '\t') lexer_next_char(); else return;
     }
 }
 
@@ -109,22 +99,19 @@ char peekNext() {
 bool inNumber(char ch){ return ch <= 57 && ch >= 48; }
 bool inAlphabet(char ch) { return (ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90) || (ch == 95); }
 Token new_string(){
-    while (peekCurrent() != '\"' && *lexer.current != '\0')   
-        next_char();
-    
-    if (*lexer.current == '\0') {
-        return new_error_token(UNTERMINATED_STRING);
-    }
-    
+    while (peekCurrent() != '\"' && *lexer.current != '\0') lexer_next_char();
+    if (*lexer.current == '\0') return new_error_token(UNTERMINATED_STRING);
+    lexer_next_char(); // skip the ending quote
+    return new_token(STRING_TOKEN);
 }
 
 Token new_number() {
     while(inNumber(peekCurrent()))
-        next_char();
+        lexer_next_char();
     if(peekCurrent() == '.' && inNumber(peekNext())){
-        next_char();
+        lexer_next_char();
         while (inNumber(peekCurrent()))
-            next_char();
+            lexer_next_char();
         
     }
 
@@ -199,7 +186,7 @@ TokenTypes id_type() {
 
 Token new_id() {
     while(inAlphabet(peekCurrent()) || inNumber(peekCurrent()))
-        next_char();
+        lexer_next_char();
     return new_token(id_type());
 }
 
@@ -209,7 +196,7 @@ Token get_token() {
     if(*lexer.current == '\0') 
         return new_token(EOF_TOKEN);
 
-    char ch = next_char();
+    char ch = lexer_next_char();
     if (inNumber(ch))
         return new_number();
     if (inAlphabet(ch))
