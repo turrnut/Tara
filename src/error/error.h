@@ -12,6 +12,7 @@
  * error.h
  * 
  */
+
 #ifndef error_header
 #define error_header
 typedef enum {

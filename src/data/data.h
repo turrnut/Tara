@@ -10,7 +10,10 @@
  * orginal author of this file.
  *
  * data.h
- *
+ * This header file provide declarations for the Data type.
+ * The Data type was created in order to store information
+ * during runtime. For example the stack memory uses a
+ * pointer of the type Data to store data in the program.
  */
 #ifndef data_header
 #define data_header
