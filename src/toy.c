@@ -32,7 +32,7 @@ void version() {
 }
 
 void help(){
-    printf("Tara programming language v%s\nCopyright (c) turrnut under the Apache 2.0 License\n\nUsage:tara <file>\n", VERSION);
+    printf("Tara programming language v%s\nCopyright (c) turrnut under the Apache 2.0 License\n\nOptions:\n\t-h or --help: display the help message\n\t-v or --version: get the current version\n\t-i or --init: initialize a new project\n\nTo run a file:tara <file>\n", VERSION);
 }
 
 int run(const char *filename)
@@ -50,38 +50,45 @@ int run(const char *filename)
     return 0;
 }
 
-
 int main(int argc, char const *argv[])
 {
     start_runtime_environment();
     switch (argc)
     {
     case 1:
-        printf("ERR: No input file(s).");
+        printf("ERR: No input file(s). Use the -h option to learn more.\n");
         return 1;
+    
     case 2:
-        if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0 ){
+        if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0){
             version();
             return 0;
         }
 
-        if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0 ){
+        if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0){
             help();
             return 0;
         }
-        return run(argv[1]);   
-        break;
-
-    default:
-        {
-            int i = 1;
-            while (i < argc)
-            {
-                run(argv[i]);
-                i++;
-            }
-            break;
+        if (strcmp(argv[1],"--init") == 0 || strcmp(argv[1], "-i") == 0) {
+            initProject();
+            return 0;
         }
+        run(argv[1]);
+        break;
+    default:{
+
+        
+        int i = 1;
+        while (i < argc)
+        {
+            
+            run(argv[i]);
+            i++;
+        }
+        break;
+        
+    }
+        
     }
 
     end_runtime_environment();

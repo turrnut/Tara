@@ -16,3 +16,4 @@
  * file.
 */
 char* readFile(const char* filename);
+void initProject();
