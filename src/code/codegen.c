@@ -29,10 +29,6 @@ IR *get_current_ir() {
     return compiling;
 }
 
-/**
- * Configurations for the compiler, it determines the priority
- * of different tokens and its types.
-*/
 
 
 void compile_with_priority(Priority p) {
@@ -53,6 +49,10 @@ void get_expr(){
     compile_with_priority(ASSIGN_PRIORITY);
 }
 
+/**
+ * Configurations for the compiler, it determines the priority
+ * of different tokens and its types.
+*/
 CompilerConfig configurations[] = {
     [LPAREN_TOKEN]={group,NULL,NO_PRIORITY},
     [RPAREN_TOKEN]={NULL,NULL,NO_PRIORITY},
