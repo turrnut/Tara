@@ -31,7 +31,7 @@ void new_lexer(const char* src){
         1,0 // row, col
     };
 }
-Token new_error_token(Error err) {
+Token new_error_token(int err) {
     char* m = get_error_text(err);
 
     Token token;
@@ -48,8 +48,8 @@ Token new_token(TokenTypes ty){
     token.first = lexer.first;
     token.pos = lexer.pos;
     token.len = (int)(lexer.current - lexer.first); 
-    if (isPrevLine){
-        token.type = IGNORE_TOKEN;
+    if (isPrevLine && ty == LINE_TOKEN){
+        token.type = IGNORE_TOKEN; //////////////////////////////////////////////////////////////////////////////////
     }
     if (ty == LINE_TOKEN) isPrevLine = true; else isPrevLine = false;
     return token;
@@ -70,7 +70,8 @@ bool is(char c) {
 char lexer_next_char() {
     lexer.current ++;
     if (peekCurrent() == '\n'){
-        lexer.pos.row = 0;
+        lexer.pos.row ++;
+        lexer.pos.col = 0;
     } else
         lexer.pos.col ++;
     return lexer.current[-1];
@@ -191,10 +192,11 @@ Token new_id() {
 }
 
 Token get_token() {
-    filter();
     lexer.first = lexer.current;
-    if(*lexer.current == '\0') 
+    if(*lexer.current == '\0') {
         return new_token(EOF_TOKEN);
+    }
+    filter();
 
     char ch = lexer_next_char();
     if (inNumber(ch))
@@ -219,7 +221,7 @@ Token get_token() {
         case '=': return new_token(is('=')?EQUAL_TOKEN:ASSIGN_TOKEN);
         case '!': return new_token(is('=')?NOT_EQUAL_TOKEN:NOT_TOKEN);
         case '<': return new_token(is('=')?LESS_THAN_OR_EQUAL_TO_TOKEN:LESS_THAN_TOKEN);
-        case '>': return new_token(is('=')?GREATER_THAN_OR_EQUAL_TO_TOKEN:GREATER_THAN);
+        case '>': return new_token(is('=')?GREATER_THAN_OR_EQUAL_TO_TOKEN:GREATER_THAN_TOKEN);
     }
     return new_error_token(ILLEGAL_CHARACTER);
 }

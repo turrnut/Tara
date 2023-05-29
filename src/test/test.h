@@ -18,6 +18,7 @@
 #include <time.h>
 #include "../ir/ir.h"
 
+void printName(const char* name);
 void showIR(IR *ir, const char *name);
 int showIns(IR *ir, int i);
 void ins(const char *name, int offset);

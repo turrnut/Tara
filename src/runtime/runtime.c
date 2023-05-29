@@ -18,6 +18,7 @@
 #include "../base/base.h"
 #include "../test/test.h"
 #include "../data/data.h"
+#include "../error/error.h"
 #include "../code/codegen.h"
 #include "../memory/memory.h"
 #include "runtime.h"
@@ -37,8 +38,7 @@ void end_runtime_environment() {
     runtime.stack = NULL;
 }
 
-int trace()
-{
+int trace() {
     printf("        ");
     for (Data *i = runtime.stack; i < runtime.stacktop; i++)
     {
@@ -99,7 +99,60 @@ void new_runtime(IR *ir)
     runtime.stacktop = runtime.stack;
 }
 
-Result execute()
-{
-    return EXECUTE_SUCCESS;
+Result do_run() {
+    while (1) {
+        #ifdef RUNTIME_DEBUG_MODE
+            showIns(runtime.ir,(int)(runtime.bp - runtime.ir->code));
+        #endif
+        uint8_t instruction;
+        instruction = step();
+        switch (instruction)
+        {
+        case INS_RETURN:
+        {
+            printData(stack_pop());
+            printf("\n");
+            return EXECUTE_SUCCESS;
+            break;
+        }
+        case INS_DATA:
+        {
+            stack_push(readData());
+            break;
+        }
+
+        case INS_NEGATIVE:{
+            Data st = *runtime.stacktop;
+            stack_push(-st);
+            break;
+        }
+        case INS_ADD:{binary_operation(+); break;}
+        case INS_SUB:{binary_operation(-); break;}
+        case INS_MUL:{binary_operation(*); break;}
+        case INS_DIV:{binary_operation(/); break;}
+        }
+    }
+}
+
+Result execute(const char* filename, const char* src) {
+    start_runtime_environment();
+    IR ir;
+    initIR(&ir);
+    Result res;
+
+    if(codegen(filename,src, &ir) == CODEGEN_ERROR) {
+        res = COMPILE_ERROR;
+        goto bye;
+    }
+    
+    new_runtime(&ir);
+    runtime.ir = &ir;
+    runtime.bp = runtime.ir->code;
+
+    res = do_run();
+    
+    bye:
+    releaseIR(&ir);
+    end_runtime_environment();
+    return res;
 }

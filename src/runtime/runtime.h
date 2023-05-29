@@ -16,6 +16,7 @@
 #define compiler_header
 
 #include "../ir/ir.h"
+#include "../error/error.h"
 
 #define STACK_SIZE 1024 // 1 KiB of stack size by default
 
@@ -44,6 +45,6 @@ Data stack_pop();
 uint8_t step();
 Data readData();
 
-Result execute();
+Result execute(const char* filename, const char* src);
 
 #endif

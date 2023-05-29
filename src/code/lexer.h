@@ -39,7 +39,7 @@ typedef enum {
     FALSE_TOKEN,
     FOR_TOKEN,
     FUNCTION_TOKEN,
-    GREATER_THAN,
+    GREATER_THAN_TOKEN,
     GREATER_THAN_OR_EQUAL_TO_TOKEN,
     ID_TOKEN,
     IF_TOKEN,
@@ -104,7 +104,7 @@ typedef struct {
 } Lexer;
 
 Token get_token();
-Token new_error_token(Error err);
+Token new_error_token(int err/* enum member of Error */);
 void new_lexer(const char* src);
 Token new_token(TokenTypes ty);
 TokenTypes id_type();

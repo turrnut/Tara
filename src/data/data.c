@@ -14,12 +14,6 @@
  */
 #include "data.h"
 #include "../memory/memory.h"
-
-/**
- * This function takes in a DataCollection pointer as an
- * argument, then set all the properties empty.
- * 
-*/
 void emptyDataCollection(DataCollection *coll)
 {
     coll->elements = NULL;
@@ -27,22 +21,11 @@ void emptyDataCollection(DataCollection *coll)
     coll->count = 0;
 }
 
-/**
- * This function takes in a DataCollection pointer as an
- * argument and then initialize an empty DataCollection
- * instance.
-*/
 void initDataCollection(DataCollection *coll)
 {
     emptyDataCollection(coll); // Empty collection
 }
 
-/**
- * Add a new Data instance to the DataCollection
- * pointer. The first argument is the DataCollection
- * pointer and the second argument is the value you want
- * to add.
-*/
 void createDataCollection(DataCollection *coll, Data value)
 {
 
@@ -58,19 +41,13 @@ void createDataCollection(DataCollection *coll, Data value)
     coll->count++; // Increment the count
 }
 
-/**
- * Empty the DataCollection. Takes in a DataCollection
- * pointer as the argument.
-*/
+
 void releaseDataCollection(DataCollection *coll)
 {
     freeMemory(Data, coll->elements); // Free all memory
     emptyDataCollection(coll); // Empty the DataCollection
 }
 
-/**
- * Print the data.
-*/
 void printData(Data d)
 {
     printf("%g", d);

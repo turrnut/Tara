@@ -15,8 +15,19 @@
 
 #ifndef error_header
 #define error_header
+#include "../code/lexer.h"
 typedef enum {
-    ERROR, ILLEGAL_CHARACTER, UNTERMINATED_STRING
+    UNKNOWN_ERROR,
+    ILLEGAL_CHARACTER,
+    UNTERMINATED_STRING,
+    EXPECT_END,
+    EXPECT_CHAR_RPAREN,
+    EXPECT_EXPRESSION,
+    VALUE_TOO_LARGE
 } Error;
+
+/**
+ * Note: argument is type Error
+*/
 char* get_error_text(Error err);
 #endif

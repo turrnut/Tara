@@ -37,12 +37,13 @@ void help(){
 
 int run(const char *filename)
 {
+    start_runtime_environment();
     char* text = readFile(filename);
-    printf("%s", text);
-    codegen(text);
-    Result result = execute();
+    
+    Result result = execute(filename,text);
     free(text);
 
+    end_runtime_environment();
     if (result == COMPILE_ERROR)
         return 1;
     if (result == RUNTIME_ERROR)
@@ -52,7 +53,6 @@ int run(const char *filename)
 
 int main(int argc, char const *argv[])
 {
-    start_runtime_environment();
     switch (argc)
     {
     case 1:
@@ -90,7 +90,5 @@ int main(int argc, char const *argv[])
     }
         
     }
-
-    end_runtime_environment();
     return 0;
 }

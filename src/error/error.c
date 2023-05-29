@@ -17,12 +17,18 @@ char* get_error_text(Error err){
     switch (err)
     {
     case ILLEGAL_CHARACTER:
-        return "IllegalCharacterError";
-    
+        return "IllegalCharacterError: The character provided cannot be recognized";
     case UNTERMINATED_STRING:
-        return "UnterminatedStringError";
-
-    case ERROR:
+        return "UnterminatedStringError: The string provided was never ended";
+    case EXPECT_END:
+        return "ExpectEndingError: Expect the end of file";
+    case VALUE_TOO_LARGE:
+        return "ValueTooLargeError: The value is too large to store in 1 bytecode";
+    case EXPECT_CHAR_RPAREN:
+        return "ExpectCharacterError: Expect ')'";
+    case EXPECT_EXPRESSION:
+        return "ExpectExpressionEror: Expect expression";
+    case UNKNOWN_ERROR:
     default:
         return "Error";
         break;

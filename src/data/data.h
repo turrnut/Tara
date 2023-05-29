@@ -22,6 +22,10 @@
 
 typedef double Data;
 
+/**
+ * The DataCollection type definition
+ * 
+*/
 typedef struct
 {
     int volume;
@@ -29,10 +33,37 @@ typedef struct
     Data *elements;
 } DataCollection;
 
+/**
+ * This function takes in a DataCollection pointer as an
+ * argument, then set all the properties empty.
+ * 
+*/
 void emptyDataCollection(DataCollection *coll);
+
+/**
+ * This function takes in a DataCollection pointer as an
+ * argument and then initialize an empty DataCollection
+ * instance.
+*/
 void initDataCollection(DataCollection *coll);
+
+/**
+ * Add a new Data instance to the DataCollection
+ * pointer. The first argument is the DataCollection
+ * pointer and the second argument is the value you want
+ * to add.
+*/
 void createDataCollection(DataCollection *coll, Data value);
+
+/**
+ * Free the DataCollection back to the memory. Takes in a
+ * DataCollection pointer as the argument.
+*/
 void releaseDataCollection(DataCollection *coll);
+
+/**
+ * Print the data.
+*/
 void printData(Data d);
 
 #endif

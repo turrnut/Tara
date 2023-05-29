@@ -17,6 +17,9 @@
 #ifndef base_header
 #define base_header
 
+#define RUNTIME_DEBUG_MODE
+#define COMPILE_DEBUG_MODE
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>

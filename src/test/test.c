@@ -16,9 +16,13 @@
 #include <time.h>
 #include "../data/data.h"
 
+void printName(const char* name) {
+    printf("========================\nIR Test\t|\tTest Name: \"%s\"\n========================\n\n", name);
+}
+
 void showIR(IR *ir, const char *name)
 {
-    printf("========================\nIR Test\t|\tTest Name: \"%s\"\n========================\n\n", name);
+    printName(name);
     for (int offset = 0; offset < ir->count;)
     {
         offset = showIns(ir, offset);
@@ -46,9 +50,7 @@ void showPosition(Position pos)
     printf("\n");
 }
 
-int showIns(IR *ir, int i)
-
-{
+int showIns(IR *ir, int i) {
     printf("%08d ", i);
 
     uint8_t instruction = ir->code[i];
