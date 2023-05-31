@@ -25,12 +25,22 @@
 typedef enum
 {
     INS_DATA,
+    INS_DATA_NULL,
+    INS_DATA_TRUE,
+    INS_DATA_FALSE,
     INS_RETURN,
     INS_NEGATIVE,
     INS_ADD,
     INS_SUB,
     INS_MUL,
-    INS_DIV
+    INS_DIV,
+    INS_NOT,
+    INS_EQUAL,
+    INS_NOT_EQUAL,
+    INS_GREATER_THAN,
+    INS_GREATER_THAN_OR_EQUAL_TO,
+    INS_LESS_THAN,
+    INS_LESS_THAN_OR_EQUAL_TO
 } InsCode;
 
 typedef struct

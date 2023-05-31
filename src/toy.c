@@ -25,32 +25,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define VERSION "1.0.0"
-
-void version() {
-    printf("Version %s\n", VERSION);
-}
-
-void help(){
-    printf("Tara programming language v%s\nCopyright (c) turrnut under the Apache 2.0 License\n\nOptions:\n\t-h or --help: display the help message\n\t-v or --version: get the current version\n\t-i or --init: initialize a new project\n\nTo run a file:tara <file>\n", VERSION);
-}
-
-int run(const char *filename)
-{
-    start_runtime_environment();
-    char* text = readFile(filename);
-    
-    Result result = execute(filename,text);
-    free(text);
-
-    end_runtime_environment();
-    if (result == COMPILE_ERROR)
-        return 1;
-    if (result == RUNTIME_ERROR)
-        return 1;
-    return 0;
-}
-
 int main(int argc, char const *argv[])
 {
     switch (argc)

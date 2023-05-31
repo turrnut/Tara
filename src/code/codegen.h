@@ -96,6 +96,12 @@ CompilerConfig* see_config(TokenTypes p);
 void get_unary();
 
 /**
+ * Compiles for predefined values such as boolean values
+ * and null values.
+*/
+void get_value();
+
+/**
  * Function for handle parentheses
 */
 void group();
@@ -115,7 +121,7 @@ void write_byte(int amount,...);
 /**
  * Compile data into instruction code
 */
-uint8_t produce_data(double dob);
+uint8_t produce_data(Data dob);
 
 /**
  * Write some bytes but in the form of Data

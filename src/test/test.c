@@ -78,6 +78,19 @@ int showIns(IR *ir, int i) {
         ins("INS_MUL", i);showPosition(ir->pos);return 1 + i;
     case INS_DIV:
         ins("INS_DIV", i);showPosition(ir->pos);return 1 + i;
+    case INS_NOT:ins("INS_NOT", i);showPosition(ir->pos);return 1+i;
+    case INS_DATA_NULL:
+        ins("INS_DATA_NULL", i);showPosition(ir->pos);return 1 + i;
+    case INS_DATA_TRUE:
+        ins("INS_DATA_TRUE", i);showPosition(ir->pos);return 1 + i;
+    case INS_DATA_FALSE:
+        ins("INS_DATA_FALSE", i);showPosition(ir->pos);return 1 + i;
+    case INS_EQUAL:ins("INS_EQUAL", i);showPosition(ir->pos);return 1+i;
+    case INS_NOT_EQUAL:ins("INS_NOT_EQUAL", i);showPosition(ir->pos);return 1+i;
+    case INS_GREATER_THAN:ins("INS_GREATER_THAN", i);showPosition(ir->pos);return 1+i;
+    case INS_GREATER_THAN_OR_EQUAL_TO:ins("INS_GREATER_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
+    case INS_LESS_THAN:ins("INS_LESS_THAN", i);showPosition(ir->pos);return 1+i;
+    case INS_LESS_THAN_OR_EQUAL_TO:ins("INS_LESS_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
     default:
         printf("Unknown instruction code %d\n", instruction);
     }

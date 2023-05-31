@@ -14,6 +14,7 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "../base/base.h"
 #include "../test/test.h"
@@ -23,11 +24,16 @@
 #include "../memory/memory.h"
 #include "runtime.h"
 
-#define binary_operation(op) \
+#define binary_operation(convert, op, div) \
     do { \
-      double second = stack_pop(); \
-      double first = stack_pop(); \
-      stack_push(first op second); \
+        if (!IS_NUMBER(see(1)) || !IS_NUMBER(see(0))) \
+            return reportRuntimeError(strcat(strcat(strcat(get_error_text(EXPR_MUST_BE_NUMBER), ", found type '"), get_str_from_type_name(see(0).type)), "'")); \
+        double right = UNPACK_NUMBER(stack_pop()); \
+        double left = UNPACK_NUMBER(stack_pop()); \
+        if (right == 0 && div) { \
+            return reportRuntimeError(get_error_text(ZERO_DIVISION));\
+        } \
+        stack_push(convert(left op right)); \
     } while (false)
 
 RuntimeEnvironment runtime;
@@ -91,13 +97,22 @@ void update_stacktop()
     runtime.stacktop = runtime.stack;
 }
 
-void new_runtime(IR *ir)
+void new_runtime(IR *ir, const char* fname)
 {
     runtime.ir = ir;
     runtime.bp = runtime.ir->code;
     runtime.stack = malloc(STACK_SIZE * sizeof(*runtime.stack));
     runtime.stacktop = runtime.stack;
+    runtime.filename = fname;
 }
+
+Result reportRuntimeError(const char *err) {
+    printf("\a\nError generated during runtime.\n\t%s\nAt file %s:%i:%i\n", err, runtime.filename, runtime.ir->pos.row, runtime.ir->pos.col);
+    runtime.stacktop = runtime.stack;
+    return RUNTIME_ERROR;
+}
+
+Data see (int i) { return runtime.stacktop[-1-i]; }
 
 Result do_run() {
     while (1) {
@@ -108,28 +123,60 @@ Result do_run() {
         instruction = step();
         switch (instruction)
         {
-        case INS_RETURN:
-        {
-            printData(stack_pop());
-            printf("\n");
-            return EXECUTE_SUCCESS;
-            break;
-        }
-        case INS_DATA:
-        {
-            stack_push(readData());
-            break;
-        }
-
-        case INS_NEGATIVE:{
-            Data st = *runtime.stacktop;
-            stack_push(-st);
-            break;
-        }
-        case INS_ADD:{binary_operation(+); break;}
-        case INS_SUB:{binary_operation(-); break;}
-        case INS_MUL:{binary_operation(*); break;}
-        case INS_DIV:{binary_operation(/); break;}
+            case INS_RETURN: {
+                printData(stack_pop());
+                printf("\n");
+                return EXECUTE_SUCCESS;
+                break;
+            }
+            case INS_DATA:{
+                stack_push(readData());
+                break;
+            }
+            case INS_NEGATIVE:{
+                int zero = 0;
+                if(!IS_NUMBER(see(zero))) return reportRuntimeError(strcat(strcat(strcat(get_error_text(EXPR_MUST_BE_NUMBER), ", found type '"), get_str_from_type_name(see(zero).type)), "'"));
+                stack_push(PACK_NUMBER(-UNPACK_NUMBER(stack_pop())));
+                break;
+            }
+            case INS_EQUAL: {
+                Data right = stack_pop();
+                Data left = stack_pop();
+                stack_push(PACK_BOOLEAN(isEqual(left,right)));
+                break;
+            }
+            case INS_GREATER_THAN:
+                binary_operation(PACK_BOOLEAN, >, false);
+                break;
+            case INS_GREATER_THAN_OR_EQUAL_TO:
+                binary_operation(PACK_BOOLEAN, >=, false);
+                break;
+            case INS_LESS_THAN:
+                binary_operation(PACK_BOOLEAN, <, false);
+                break;
+            case INS_LESS_THAN_OR_EQUAL_TO:
+                binary_operation(PACK_BOOLEAN, <=, false);
+                break;
+            case INS_ADD:{ binary_operation(PACK_NUMBER, +, false); break; }
+            case INS_SUB:{ binary_operation(PACK_NUMBER, -, false); break; }
+            case INS_MUL:{ binary_operation(PACK_NUMBER, *, false); break; }
+            case INS_DIV:{ binary_operation(PACK_NUMBER, /, true); break; }
+            case INS_NOT:{
+                stack_push(PACK_BOOLEAN(isFalse(stack_pop())));
+                break;
+            }
+            case INS_DATA_NULL: {
+                stack_push(PACK_NULL);
+                break;
+            }
+            case INS_DATA_FALSE: {
+                stack_push(PACK_BOOLEAN(false));
+                break;
+            }
+            case INS_DATA_TRUE: {
+                stack_push(PACK_BOOLEAN(true));
+                break;
+            }
         }
     }
 }
@@ -145,7 +192,7 @@ Result execute(const char* filename, const char* src) {
         goto bye;
     }
     
-    new_runtime(&ir);
+    new_runtime(&ir, filename);
     runtime.ir = &ir;
     runtime.bp = runtime.ir->code;
 

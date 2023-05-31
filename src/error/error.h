@@ -23,7 +23,10 @@ typedef enum {
     EXPECT_END,
     EXPECT_CHAR_RPAREN,
     EXPECT_EXPRESSION,
-    VALUE_TOO_LARGE
+    VALUE_TOO_LARGE,
+
+    EXPR_MUST_BE_NUMBER,
+    ZERO_DIVISION
 } Error;
 
 /**

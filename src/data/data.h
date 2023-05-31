@@ -20,7 +20,40 @@
 
 #include "../base/base.h"
 
-typedef double Data;
+/**
+ * Types of data
+*/
+typedef enum {
+    BOOLEAN_VALUE,
+    NULL_VALUE,
+    NUMBER_VALUE
+} DataType;
+
+/**
+ * The Data struct represents a value stored in the program's
+ * memory. It has two parts: the type and the actual value.
+*/
+typedef struct {
+    DataType type;
+    union {
+        bool boolean;
+        double number;
+    } is;
+} Data;
+
+#define PACK_BOOLEAN(b) ((Data) {BOOLEAN_VALUE, {.boolean = b}}) // Pack a C bool value to boolean Data
+#define PACK_NUMBER(n) ((Data) {NUMBER_VALUE, {.number = n}}) // Pack a C number value to number Data
+#define PACK_NULL ((Data) {NULL_VALUE, {.number = 0}}) // Returns a null Data
+
+#define UNPACK_BOOLEAN(b) ((b).is.boolean) // Unpack the Data into a C bool
+#define UNPACK_NUMBER(n) ((n).is.number) // Unpack the Data into a C number
+
+#define IS_BOOLEAN(b) ((b).type == BOOLEAN_VALUE)
+#define IS_NULL(nu) ((nu).type == NULL_VALUE)
+#define IS_NUMBER(n) ((n).type == NUMBER_VALUE)
+
+bool isFalse (Data da);
+bool isEqual(Data left, Data right);
 
 /**
  * The DataCollection type definition
@@ -39,6 +72,11 @@ typedef struct
  * 
 */
 void emptyDataCollection(DataCollection *coll);
+
+/**
+ * Returns a string of the given DataType
+*/
+const char* get_str_from_type_name(DataType dat);
 
 /**
  * This function takes in a DataCollection pointer as an

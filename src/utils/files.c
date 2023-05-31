@@ -16,6 +16,10 @@
 #include <string.h>
 
 #include "files.h"
+#include "../base/base.h"
+#include "../ir/ir.h"
+#include "../code/codegen.h"
+#include "../runtime/runtime.h"
 char *readFile(const char *path)
 {
   FILE *file = fopen(path, "rb");
@@ -74,4 +78,28 @@ void initProject() {
     fprintf(config, "\n{\n \t\"name\":\"%s\",\n\t\"author\":\"%s\",\n\t\"description\":\"%s\"\n}\n", name, author, description);
     fclose(config);
     printf("Done.\n");
+}
+
+
+void version() {
+    printf("Version %s\n", VERSION);
+}
+
+void help(){
+    printf("Tara programming language v%s\n\nOptions:\n\t-h or --help: display the help message\n\t-v or --version: get the current version\n\t-i or --init: initialize a new project\n\nTo run a file:tara <file>\n", VERSION);
+}
+
+int run(const char *filename)
+{
+    start_runtime_environment();
+    char* text = readFile(filename);
+    Result result = execute(filename,text);
+    free(text);
+
+    end_runtime_environment();
+    if (result == COMPILE_ERROR)
+        return 1;
+    if (result == RUNTIME_ERROR)
+        return 1;
+    return 0;
 }

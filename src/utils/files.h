@@ -15,5 +15,9 @@
  * any other I/O actions, they will called functions in this
  * file.
 */
+
 char* readFile(const char* filename);
 void initProject();
+void version();
+void help();
+int run(const char *filename);

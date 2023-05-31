@@ -49,48 +49,59 @@ void get_expr(){
     compile_with_priority(ASSIGN_PRIORITY);
 }
 
+void get_value() {
+    InsCode inscode = INS_DATA_NULL;
+    switch (compiler.before.type) {
+        case FALSE_TOKEN:{ inscode = INS_DATA_FALSE; break;}
+        case TRUE_TOKEN:{ inscode = INS_DATA_TRUE; break;}
+        case NULL_TOKEN: break;
+        default: return;
+    }
+    write_byte(1, inscode);
+}
+
 /**
  * Configurations for the compiler, it determines the priority
  * of different tokens and its types.
 */
 CompilerConfig configurations[] = {
+    [ADD_TOKEN]={NULL,get_binary,TERM_PRIORITY},
+    [SUB_TOKEN]={get_unary,get_binary,TERM_PRIORITY},
+    [DIV_TOKEN]={NULL,get_binary,FACTOR_PRIORITY},
+    [MUL_TOKEN]={NULL,get_binary,FACTOR_PRIORITY},
+    [NOT_TOKEN]={get_unary, NULL, NO_PRIORITY},
+    [FALSE_TOKEN]={get_value,NULL,NO_PRIORITY},
+    [NULL_TOKEN]={get_value,NULL,NO_PRIORITY},
+    [TRUE_TOKEN]={get_value,NULL,NO_PRIORITY},
+    [NUMBER_TOKEN]={get_number,NULL,NO_PRIORITY},
     [LPAREN_TOKEN]={group,NULL,NO_PRIORITY},
+    [NOT_EQUAL_TOKEN]={NULL,get_binary,EQ_PRIORITY},
+    [EQUAL_TOKEN]={NULL,get_binary,EQ_PRIORITY},
+    [GREATER_THAN_TOKEN]={NULL,get_binary,COMP_PRIORITY},
+    [GREATER_THAN_OR_EQUAL_TO_TOKEN]={NULL,get_binary,COMP_PRIORITY},
+    [LESS_THAN_TOKEN]={NULL,get_binary,COMP_PRIORITY},
+    [LESS_THAN_OR_EQUAL_TO_TOKEN]={NULL,get_binary,COMP_PRIORITY},
     [RPAREN_TOKEN]={NULL,NULL,NO_PRIORITY},
     [LCURBRACES_TOKEN]={NULL,NULL,NO_PRIORITY},
     [RCURBRACES_TOKEN]={NULL,NULL,NO_PRIORITY},
     [COMMA_TOKEN]={NULL,NULL,NO_PRIORITY},
     [DOT_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [SUB_TOKEN]={get_unary,get_binary,TERM_PRIORITY},
-    [ADD_TOKEN]={NULL,get_binary,TERM_PRIORITY},
     [LINE_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [DIV_TOKEN]={NULL,get_binary,FACTOR_PRIORITY},
-    [MUL_TOKEN]={NULL,get_binary,FACTOR_PRIORITY},
-    [NOT_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [NOT_EQUAL_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ASSIGN_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [EQUAL_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [GREATER_THAN_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [GREATER_THAN_OR_EQUAL_TO_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [LESS_THAN_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [LESS_THAN_OR_EQUAL_TO_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ID_TOKEN]={NULL,NULL,NO_PRIORITY},
     [STRING_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [NUMBER_TOKEN]={get_number,NULL,NO_PRIORITY},
     [AND_TOKEN]={NULL,NULL,NO_PRIORITY},
     [CLASS_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ELSE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ELIF_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [FALSE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [FOR_TOKEN]={NULL,NULL,NO_PRIORITY},
     [FUNCTION_TOKEN]={NULL,NULL,NO_PRIORITY},
     [IF_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [NULL_TOKEN]={NULL,NULL,NO_PRIORITY},
     [OR_TOKEN]={NULL,NULL,NO_PRIORITY},
     [TRACE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [RETURN_TOKEN]={NULL,NULL,NO_PRIORITY},
     [SUPER_TOKEN]={NULL,NULL,NO_PRIORITY},
     [THIS_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [TRUE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [VARIABLE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [WHILE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ERROR_TOKEN]={NULL,NULL,NO_PRIORITY},
@@ -118,11 +129,6 @@ void write_byte(int amount, ...) {
 
 void reportCompileError(const char *filename, Token *token, const char *err) {
     printf("\a\nError generated during compilation.\n\t");
-    printf("%s\nAt file %s:%i:%i\n", err, filename, token->pos.row, token->pos.col);
-}
-
-void reportRuntimeError(const char *filename, Token *token, const char *err) {
-    printf("\a\nError generated during runtime.\n");
     printf("%s\nAt file %s:%i:%i\n", err, filename, token->pos.row, token->pos.col);
 }
 
@@ -210,14 +216,32 @@ void get_binary() {
     case DIV_TOKEN:
         write_byte(1, INS_DIV);
         break;
+    case NOT_EQUAL_TOKEN:
+        write_byte(1, INS_NOT_EQUAL);
+        break;
+    case EQUAL_TOKEN:
+        write_byte(1, INS_EQUAL);
+        break;
+    case GREATER_THAN_TOKEN:
+        write_byte(1, INS_GREATER_THAN);
+        break;
+    case GREATER_THAN_OR_EQUAL_TO_TOKEN:
+        write_byte(1, INS_GREATER_THAN_OR_EQUAL_TO);
+        break;
+    case LESS_THAN_TOKEN:
+        write_byte(1, INS_LESS_THAN);
+        break;
+    case LESS_THAN_OR_EQUAL_TO_TOKEN:
+        write_byte(1, INS_LESS_THAN_OR_EQUAL_TO);
+        break;
     default:
-        return;
+        break;
     }
 }
 
 void get_number() {
     double dob = strtod(compiler.before.first, NULL);   
-    write_data(dob);
+    write_data(PACK_NUMBER(dob));
 }
 
 void get_unary(){
@@ -227,9 +251,11 @@ void get_unary(){
     case SUB_TOKEN:
         write_byte(1, INS_NEGATIVE);
         break;
-    
+    case NOT_TOKEN:
+        write_byte(1, INS_NOT);
+        break;
     default:
-        return;
+        break;
     }
 }
 

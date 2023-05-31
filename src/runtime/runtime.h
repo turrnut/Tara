@@ -26,6 +26,7 @@ typedef struct
     uint8_t *bp; // byte pointer
     Data *stack;
     Data *stacktop;
+    const char* filename;
 } RuntimeEnvironment;
 
 typedef enum
@@ -44,7 +45,8 @@ int stack_alloc(int vol);
 Data stack_pop();
 uint8_t step();
 Data readData();
-
+Result reportRuntimeError(const char *err);
+Data see(int i);
 Result execute(const char* filename, const char* src);
 
 #endif

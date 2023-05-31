@@ -30,6 +30,7 @@ void new_lexer(const char* src){
     Position startingPosition = {
         1,0 // row, col
     };
+    lexer.pos = startingPosition;
 }
 Token new_error_token(int err) {
     char* m = get_error_text(err);
@@ -181,6 +182,7 @@ TokenTypes id_type() {
         case 's': return inKey(strt, 4, "uper") ? SUPER_TOKEN : def;
         case 'v': return inKey(strt, 2, "al") ? VARIABLE_TOKEN : def;
         case 'w': return inKey(strt, 4, "hile") ? WHILE_TOKEN : def;
+        case 'p': return inKey(strt, 5, "lease") ? IGNORE_TOKEN : def;
     }
     return def;
 }
