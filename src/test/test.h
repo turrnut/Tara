@@ -15,7 +15,6 @@
 
 #ifndef test_header
 #define test_header
-#include <time.h>
 #include "../ir/ir.h"
 
 void printName(const char* name);

@@ -18,7 +18,7 @@
 
 #include "../base/base.h"
 #include "../test/test.h"
-#include "../data/data.h"
+#include "../type/type.h"
 #include "../error/error.h"
 #include "../code/codegen.h"
 #include "../memory/memory.h"
@@ -181,25 +181,26 @@ Result do_run() {
     }
 }
 
-Result execute(const char* filename, const char* src) {
-    start_runtime_environment();
-    IR ir;
-    initIR(&ir);
+Result Compile(const char* filename, const char* src, IR* ir) {
+    initIR(ir);
     Result res;
 
-    if(codegen(filename,src, &ir) == CODEGEN_ERROR) {
-        res = COMPILE_ERROR;
-        goto bye;
+    if(codegen(filename,src, ir) == CODEGEN_ERROR) {
+        return COMPILE_ERROR;
     }
+    return EXECUTE_SUCCESS;
+}
+
+Result Execute(const char* filename, IR* ir) {
+    start_runtime_environment();
+    Result res;
     
-    new_runtime(&ir, filename);
-    runtime.ir = &ir;
+    new_runtime(ir, filename);
+    runtime.ir = ir;
     runtime.bp = runtime.ir->code;
 
     res = do_run();
-    
-    bye:
-    releaseIR(&ir);
+    releaseIR(ir);
     end_runtime_environment();
     return res;
 }

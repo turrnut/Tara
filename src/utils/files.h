@@ -20,4 +20,4 @@ char* readFile(const char* filename);
 void initProject();
 void version();
 void help();
-int run(const char *filename);
+int jit(const char *filename);

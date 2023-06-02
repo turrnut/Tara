@@ -47,6 +47,7 @@ uint8_t step();
 Data readData();
 Result reportRuntimeError(const char *err);
 Data see(int i);
-Result execute(const char* filename, const char* src);
+Result Compile(const char* filename, const char* src, IR* ir);
+Result Execute(const char* filename, IR* ir);
 
 #endif

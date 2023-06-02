@@ -14,7 +14,7 @@
  */
 #include "test.h"
 #include <time.h>
-#include "../data/data.h"
+#include "../type/type.h"
 
 void printName(const char* name) {
     printf("========================\nIR Test\t|\tTest Name: \"%s\"\n========================\n\n", name);

@@ -27,41 +27,36 @@
 
 int main(int argc, char const *argv[])
 {
-    switch (argc)
-    {
-    case 1:
-        printf("ERR: No input file(s). Use the -h option to learn more.\n");
-        return 1;
-    
-    case 2:
-        if (strcmp(argv[1], "-v") == 0 || strcmp(argv[1], "--version") == 0){
-            version();
-            return 0;
-        }
+    switch (argc) {
+        case 1:
+            printf("ERR: No input file(s). Use the -h option to learn more.\n");
+            return 1;
+        default:{
 
-        if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0){
-            help();
-            return 0;
-        }
-        if (strcmp(argv[1],"--init") == 0 || strcmp(argv[1], "-i") == 0) {
-            initProject();
-            return 0;
-        }
-        run(argv[1]);
-        break;
-    default:{
-
-        
-        int i = 1;
-        while (i < argc)
-        {
             
-            run(argv[i]);
-            i++;
+            int i = 1;
+            while (i < argc)
+            {
+                if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0){
+                    version();
+                    return 0;
+                }
+
+                if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0){
+                    help();
+                    return 0;
+                }
+                if (strcmp(argv[i],"--init") == 0 || strcmp(argv[i], "-i") == 0) {
+                    initProject();
+                    return 0;
+                }
+
+                jit(argv[i]);
+                i++;
+            }
+            break;
+            
         }
-        break;
-        
-    }
         
     }
     return 0;

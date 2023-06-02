@@ -14,12 +14,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include "files.h"
 #include "../base/base.h"
 #include "../ir/ir.h"
 #include "../code/codegen.h"
 #include "../runtime/runtime.h"
+
+void clean_exit_on_sig(int sig_num)
+{
+  printf ("\nAn unknown fatal error has occured");
+  exit(1);
+}
+
 char *readFile(const char *path)
 {
   FILE *file = fopen(path, "rb");
@@ -89,17 +97,24 @@ void help(){
     printf("Tara programming language v%s\n\nOptions:\n\t-h or --help: display the help message\n\t-v or --version: get the current version\n\t-i or --init: initialize a new project\n\nTo run a file:tara <file>\n", VERSION);
 }
 
-int run(const char *filename)
-{
-    start_runtime_environment();
-    char* text = readFile(filename);
-    Result result = execute(filename,text);
-    free(text);
+int jit(const char *filename){ 
+  signal(SIGINT , clean_exit_on_sig);
+  signal(SIGABRT , clean_exit_on_sig);
+  signal(SIGILL , clean_exit_on_sig);
+  signal(SIGFPE , clean_exit_on_sig);
+  signal(SIGSEGV, clean_exit_on_sig);
+  signal(SIGTERM , clean_exit_on_sig);
+  char* text = readFile(filename);
+  IR ir;
+  Result result = Compile(filename,text,&ir);
+  free(text);
+  if (result == COMPILE_ERROR)
+    return 1;
 
-    end_runtime_environment();
-    if (result == COMPILE_ERROR)
-        return 1;
-    if (result == RUNTIME_ERROR)
-        return 1;
-    return 0;
+  start_runtime_environment();
+  result = Execute(filename,&ir);
+  end_runtime_environment();
+  if (result == RUNTIME_ERROR)
+    return 1;
+  return 0;
 }
