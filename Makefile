@@ -1,6 +1,6 @@
 # 
 # Author: turrnut
-# Copyrighted © turrnut under the Apache 2.0 license#
+# Copyrighted © turrnut under the Apache 2.0 license
 #
 # We hoped that you will use this piece of open source
 # software fairly. read the LICENSE for more details about
