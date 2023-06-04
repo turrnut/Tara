@@ -26,8 +26,9 @@
 
 #define binary_operation(convert, op, div) \
     do { \
-        if (!IS_NUMBER(see(1)) || !IS_NUMBER(see(0))) \
-            return reportRuntimeError(strcat(strcat(strcat(get_error_text(EXPR_MUST_BE_NUMBER), ", found type '"), get_str_from_type_name(see(0).type)), "'")); \
+        if (!IS_NUMBER(see(1)) || !IS_NUMBER(see(0))) {\
+            return reportRuntimeError(get_error_text(EXPR_MUST_BE_NUMBER)); \
+        } \
         double right = UNPACK_NUMBER(stack_pop()); \
         double left = UNPACK_NUMBER(stack_pop()); \
         if (right == 0 && div) { \
@@ -114,6 +115,16 @@ Result reportRuntimeError(const char *err) {
 
 Data see (int i) { return runtime.stacktop[-1-i]; }
 
+void concat_text(Text* left, Text* right) {
+    int new_len = left->len + right->len;
+    char* charslist = ALLOC(char, new_len + 1);
+    memcpy(charslist, left->charlist, left->len);
+    memcpy(charslist + left->len, right->charlist, right->len);
+    charslist[new_len] = '\0';
+    Text* res = allocText(charslist, new_len);
+    stack_push(PACK_OBJECT(res));
+}
+
 Result do_run() {
     while (1) {
         #ifdef RUNTIME_DEBUG_MODE
@@ -157,7 +168,35 @@ Result do_run() {
             case INS_LESS_THAN_OR_EQUAL_TO:
                 binary_operation(PACK_BOOLEAN, <=, false);
                 break;
-            case INS_ADD:{ binary_operation(PACK_NUMBER, +, false); break; }
+            case INS_ADD:{
+                if (IS_TEXT(see(0)) && IS_TEXT(see(1))){
+                    Text* right = UNPACK_TEXT(stack_pop());
+                    Text* left = UNPACK_TEXT(stack_pop());
+                    concat_text(left, right);
+                }
+                else if (IS_NUMBER(see(0)) && IS_NUMBER(see(1))) {
+                    double right = UNPACK_NUMBER(stack_pop());
+                    double left = UNPACK_NUMBER(stack_pop());
+                    Data result = PACK_NUMBER(left + right);
+                    stack_push(result);
+                } else
+                    return reportRuntimeError(
+                        strcat(
+                            strcat(
+                                strcat(
+                                    strcat(
+                                        strcat(get_error_text(ILLEGAL_OPERANDS), "\'"),
+                                        (const char*)(getDataNameByType(see(0).type))
+                                    ),
+                                    (const char*)("and \'")
+                                ),
+                                (const char*)(getDataNameByType(see(1).type))
+                            ),
+                            (const char*)("\'")
+                        )
+                    );
+                break; 
+            }
             case INS_SUB:{ binary_operation(PACK_NUMBER, -, false); break; }
             case INS_MUL:{ binary_operation(PACK_NUMBER, *, false); break; }
             case INS_DIV:{ binary_operation(PACK_NUMBER, /, true); break; }

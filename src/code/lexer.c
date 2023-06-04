@@ -100,11 +100,13 @@ char peekNext() {
 
 bool inNumber(char ch){ return ch <= 57 && ch >= 48; }
 bool inAlphabet(char ch) { return (ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90) || (ch == 95); }
-Token new_string(){
-    while (peekCurrent() != '\"' && *lexer.current != '\0') lexer_next_char();
+Token new_text(){
+    while (peekCurrent() != '\'' && !(*lexer.current == '\0')) {
+        lexer_next_char();
+    }
     if (*lexer.current == '\0') return new_error_token(UNTERMINATED_STRING);
     lexer_next_char(); // skip the ending quote
-    return new_token(STRING_TOKEN);
+    return new_token(TEXT_TOKEN);
 }
 
 Token new_number() {
@@ -218,7 +220,7 @@ Token get_token() {
         case ':': return new_token(COLON_TOKEN);
         case '{': return new_token(LCURBRACES_TOKEN);
         case '}': return new_token(RCURBRACES_TOKEN);
-        case '\"':return new_string();
+        case '\'':return new_text();
         case '\n':return new_token(LINE_TOKEN);
         case '=': return new_token(is('=')?EQUAL_TOKEN:ASSIGN_TOKEN);
         case '!': return new_token(is('=')?NOT_EQUAL_TOKEN:NOT_TOKEN);

@@ -23,6 +23,7 @@
 #include "../runtime/runtime.h"
 #include "../ir/ir.h"
 #include "../error/error.h"
+#include "../type/type.h"
 #include "lexer.h"
 
 typedef void (*CompilerFunction)();
@@ -76,8 +77,6 @@ typedef enum {
     CODEGEN_OK
 } CodeGenerationResult;
 
-
-
 /**
  * Function that compiles the code with the given priority
  * level in the arguments.
@@ -104,7 +103,7 @@ void get_value();
 /**
  * Function for handle parentheses
 */
-void group();
+void get_group();
 
 /**
  * Get the IR currently working with

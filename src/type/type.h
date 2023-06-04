@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+
 #define PACK_BOOLEAN(b) ((Data) {BOOLEAN_VALUE, {.boolean = b}}) // Pack a C bool value to boolean Data
 #define PACK_NUMBER(n) ((Data) {NUMBER_VALUE, {.number = n}}) // Pack a C number value to number Data
 #define PACK_NULL ((Data) {NULL_VALUE, {.number = 0}}) // Returns a null Data
@@ -28,11 +29,16 @@
 #define UNPACK_BOOLEAN(b) ((b).is.boolean) // Unpack the Data into a C bool
 #define UNPACK_NUMBER(n) ((n).is.number) // Unpack the Data into a C number
 #define UNPACK_OBJECT(o) ((o).is.object) // Unpack the Object 
+#define UNPACK_TEXT(s) ((Text*)UNPACK_OBJECT(s))
+#define UNPACK_TEXT_AS_C_CHARS(s) (((Text*)UNPACK_OBJECT(s))->charlist)
 
 #define IS_BOOLEAN(b) ((b).type == BOOLEAN_VALUE)
 #define IS_NULL(nu) ((nu).type == NULL_VALUE)
 #define IS_NUMBER(n) ((n).type == NUMBER_VALUE)
 #define IS_OBJECT(o) ((o).type == OBJECT_VALUE)
+#define IS_TEXT(s) isType(s, TEXT)
+
+#define ALLOCOBJ(t, ot) (t*)allocobj(sizeof(t), ot)
 
 /**
  * Types of data
@@ -48,7 +54,7 @@ typedef enum {
  * This enum defines different object types
 */
 typedef enum {
-    STRING
+    TEXT
 } Type;
 
 /**
@@ -68,7 +74,8 @@ typedef struct {
     Object object;
     int len;
     char* charlist;
-} String;
+} Text;
+
 
 /**
  * The Data struct represents a value stored in the program's
@@ -83,11 +90,16 @@ typedef struct {
     } is;
 } Data;
 
-
-
 Type get_object_type(Data obj);
 bool isFalse (Data da);
 bool isEqual(Data left, Data right);
+bool objectsEqual(Data left, Data right);
+bool isType (Data d, Type t);
+Text* create_text(const char* c, int l);
+Text* take_text(char* c, int len);
+Text* allocText(char* c, int l);
+Object* allocobj(size_t size, Type t);
+const char* getDataNameByType(DataType dat);
 
 /**
  * The DataCollection type definition

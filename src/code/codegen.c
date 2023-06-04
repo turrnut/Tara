@@ -21,6 +21,7 @@
 #include "../base/base.h"
 #include "../error/error.h"
 #include "../test/test.h"
+#include "../type/type.h"
 
 Compiler compiler;
 IR *compiling;
@@ -60,27 +61,32 @@ void get_value() {
     write_byte(1, inscode);
 }
 
+void get_text() {
+    write_data(PACK_OBJECT(create_text(compiler.before.first + 1, compiler.before.len - 2)));
+}
+
 /**
  * Configurations for the compiler, it determines the priority
  * of different tokens and its types.
 */
 CompilerConfig configurations[] = {
     [ADD_TOKEN]={NULL,get_binary,TERM_PRIORITY},
-    [SUB_TOKEN]={get_unary,get_binary,TERM_PRIORITY},
     [DIV_TOKEN]={NULL,get_binary,FACTOR_PRIORITY},
+    [SUB_TOKEN]={get_unary,get_binary,TERM_PRIORITY},
     [MUL_TOKEN]={NULL,get_binary,FACTOR_PRIORITY},
     [NOT_TOKEN]={get_unary, NULL, NO_PRIORITY},
     [FALSE_TOKEN]={get_value,NULL,NO_PRIORITY},
     [NULL_TOKEN]={get_value,NULL,NO_PRIORITY},
     [TRUE_TOKEN]={get_value,NULL,NO_PRIORITY},
     [NUMBER_TOKEN]={get_number,NULL,NO_PRIORITY},
-    [LPAREN_TOKEN]={group,NULL,NO_PRIORITY},
+    [LPAREN_TOKEN]={get_group,NULL,NO_PRIORITY},
     [NOT_EQUAL_TOKEN]={NULL,get_binary,EQ_PRIORITY},
     [EQUAL_TOKEN]={NULL,get_binary,EQ_PRIORITY},
     [GREATER_THAN_TOKEN]={NULL,get_binary,COMP_PRIORITY},
     [GREATER_THAN_OR_EQUAL_TO_TOKEN]={NULL,get_binary,COMP_PRIORITY},
     [LESS_THAN_TOKEN]={NULL,get_binary,COMP_PRIORITY},
     [LESS_THAN_OR_EQUAL_TO_TOKEN]={NULL,get_binary,COMP_PRIORITY},
+    [TEXT_TOKEN] = {get_text, NULL, NO_PRIORITY},
     [RPAREN_TOKEN]={NULL,NULL,NO_PRIORITY},
     [LCURBRACES_TOKEN]={NULL,NULL,NO_PRIORITY},
     [RCURBRACES_TOKEN]={NULL,NULL,NO_PRIORITY},
@@ -89,7 +95,6 @@ CompilerConfig configurations[] = {
     [LINE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ASSIGN_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ID_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [STRING_TOKEN]={NULL,NULL,NO_PRIORITY},
     [AND_TOKEN]={NULL,NULL,NO_PRIORITY},
     [CLASS_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ELSE_TOKEN]={NULL,NULL,NO_PRIORITY},
@@ -182,7 +187,7 @@ void end_codegen()
     #endif
 }
 
-void group() {
+void get_group() {
     get_expr();
     eat(RPAREN_TOKEN, EXPECT_CHAR_RPAREN);
 }

@@ -26,6 +26,7 @@ typedef enum {
     VALUE_TOO_LARGE,
 
     EXPR_MUST_BE_NUMBER,
+    ILLEGAL_OPERANDS,
     ZERO_DIVISION
 } Error;
 

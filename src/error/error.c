@@ -29,12 +29,14 @@ char* get_error_text(Error err){
         case EXPECT_CHAR_RPAREN:
             return "ExpectCharacterError: Expect ')'.";
         case EXPECT_EXPRESSION:
-            return "ExpectExpressionEror: Expect expression.";
+            return "ExpectExpressionError: Expect expression.";
         ////////////////////////////
         case EXPR_MUST_BE_NUMBER:
             return "TypeError: Expression must be of type 'number'.";
         case ZERO_DIVISION:
             return "ZeroDivisionError: Can't divide a number by zero.";
+        case ILLEGAL_OPERANDS:
+            return "IllegalOperandsError: Invalid operand types.";
 
         case UNKNOWN_ERROR:
         default:

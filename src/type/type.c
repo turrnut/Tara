@@ -14,6 +14,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include "type.h"
 #include "../memory/memory.h"
 void emptyDataCollection(DataCollection *coll)
@@ -30,6 +31,10 @@ void initDataCollection(DataCollection *coll)
 
 Type get_object_type(Data obj) {
     return UNPACK_OBJECT(obj)->object_t;
+}
+
+bool isType(Data d, Type t) {
+    return ((bool)(UNPACK_OBJECT(d)->object_t == t && IS_OBJECT(d)));
 }
 
 void createDataCollection(DataCollection *coll, Data value)
@@ -57,10 +62,11 @@ void releaseDataCollection(DataCollection *coll)
 const char* get_str_from_type_name(DataType dat) {
     switch (dat)
     {
-    case NUMBER_VALUE:return "number";
-    case BOOLEAN_VALUE:return "boolean";
-    case NULL_VALUE:return "null";
-    default: return "object";
+        case NUMBER_VALUE:return "number";
+        case BOOLEAN_VALUE:return "boolean";
+        case NULL_VALUE:return "null";
+        case OBJECT_VALUE:
+        default: return "object";
     }
 }
 
@@ -77,6 +83,23 @@ bool isFalse (Data da) {
     }
 }
 
+bool objectsEqual(Data left, Data right) {
+    return (UNPACK_TEXT(left)->len == UNPACK_TEXT(right)->len) && (memcmp(UNPACK_TEXT(left)->charlist,UNPACK_TEXT(right)->charlist, UNPACK_TEXT(left)->len));
+}
+
+const char* getDataNameByType(DataType dat) {
+    switch(dat) {
+        case BOOLEAN_VALUE:
+            return "boolean";
+        case NULL_VALUE:
+            return "null";
+        case NUMBER_VALUE:
+            return "number";
+        case OBJECT_VALUE:
+        default: return "object";
+    }
+}
+
 bool isEqual(Data left, Data right) {
     if(left.type != right.type) {
         return false;
@@ -86,13 +109,30 @@ bool isEqual(Data left, Data right) {
             return UNPACK_BOOLEAN(left) == UNPACK_BOOLEAN(right);
         case NUMBER_VALUE: 
             return UNPACK_NUMBER(left) == UNPACK_NUMBER(right);
-        case NULL_VALUE:{
-            if IS_NULL(right)
-                return true;
-            return false;
-        }
-        default:return false;
+        case NULL_VALUE: return (bool)(1);
+        case OBJECT_VALUE: return objectsEqual(left, right);
+        default: return false;
     }
+}
+
+Object* allocobj(size_t size, Type type) {
+    Object* obj = (Object*)reallocMemory(NULL,size);
+    obj->object_t = type;
+    return obj;
+}
+
+Text* create_text(const char* c, int last) {
+    char* Heap = ALLOC(char,1+last);
+    memcpy(Heap,c,last);
+    Heap[last] = '\0';
+    return allocText(Heap,last);
+}
+
+Text* allocText(char* c, int last) {
+    Text* t = ALLOCOBJ(Text, TEXT);
+    t->len = last;
+    t->charlist = c;
+    return t;
 }
 
 void printData(Data d) {
@@ -110,6 +150,19 @@ void printData(Data d) {
             printf("%g", UNPACK_NUMBER(d));
             break;
         }
+
+        case OBJECT_VALUE: {
+            switch (get_object_type(d)) {
+                case TEXT:
+                    printf("%s", UNPACK_TEXT_AS_C_CHARS(d));
+                    break;
+                
+                default:
+                    break;
+            }
+            break;
+        }
+
         default:{
             break;
         }

@@ -19,6 +19,7 @@
 
 #define VERSION "1.0.0"
 #define RUNTIME_DEBUG_MODE
+#define FUCKYOU
 // #define COMPILE_DEBUG_MODE
 
 #include <stdbool.h>

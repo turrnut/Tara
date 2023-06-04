@@ -18,7 +18,7 @@
 #define increaseMemory(type, pointer, target) \
     (type *)reallocMemory(pointer,            \
                           sizeof(type) * (target))
-
+#define ALLOC(t,c)(t*)reallocMemory(NULL,sizeof(t)*(c))
 #define freeMemory(type, pointer) \
     reallocMemory(pointer, 0)
 
