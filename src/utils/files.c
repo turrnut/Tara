@@ -33,7 +33,7 @@ char *readFile(const char *path)
   FILE *file = fopen(path, "rb");
   if (file == NULL)
   {
-    printf("ERR: Can't open file \"%s\"\n", path);
+    printf("ERR: Can't open file \"%s\", does it really exist?\n", path);
     exit(1);
   }
   fseek(file, 0L, SEEK_END);
@@ -97,13 +97,15 @@ void help(){
     printf("Tara programming language v%s\n\nOptions:\n\t-h or --help: display the help message\n\t-v or --version: get the current version\n\t-i or --init: initialize a new project\n\nTo run a file:tara <file>\n", VERSION);
 }
 
-int jit(const char *filename){ 
-  signal(SIGINT , clean_exit_on_sig);
-  signal(SIGABRT , clean_exit_on_sig);
-  signal(SIGILL , clean_exit_on_sig);
-  signal(SIGFPE , clean_exit_on_sig);
-  signal(SIGSEGV, clean_exit_on_sig);
-  signal(SIGTERM , clean_exit_on_sig);
+int jit(const char *filename){
+  #ifdef RELEASE_MODE 
+    signal(SIGINT , clean_exit_on_sig);
+    signal(SIGABRT , clean_exit_on_sig);
+    signal(SIGILL , clean_exit_on_sig);
+    signal(SIGFPE , clean_exit_on_sig);
+    signal(SIGSEGV, clean_exit_on_sig);
+    signal(SIGTERM , clean_exit_on_sig);
+  #endif
   char* text = readFile(filename);
   IR ir;
   Result result = Compile(filename,text,&ir);
@@ -111,9 +113,7 @@ int jit(const char *filename){
   if (result == COMPILE_ERROR)
     return 1;
 
-  start_runtime_environment();
   result = Execute(filename,&ir);
-  end_runtime_environment();
   if (result == RUNTIME_ERROR)
     return 1;
   return 0;

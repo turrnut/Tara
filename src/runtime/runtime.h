@@ -27,6 +27,7 @@ typedef struct
     Data *stack;
     Data *stacktop;
     const char* filename;
+    Object* heap;
 } RuntimeEnvironment;
 
 typedef enum
@@ -36,8 +37,13 @@ typedef enum
     RUNTIME_ERROR
 } Result;
 
+extern RuntimeEnvironment runtime;
+
 void start_runtime_environment();
 void end_runtime_environment();
+void freeStack();
+void freeHeap();
+void releaseObject(Object* o);
 void update_stacktop();
 void stack_push(Data data);
 int stack_is_empty();
@@ -49,6 +55,6 @@ Result reportRuntimeError(const char *err);
 Data see(int i);
 Result Compile(const char* filename, const char* src, IR* ir);
 Result Execute(const char* filename, IR* ir);
-void concat_text(Text* left, Text* right);
+void concat_text();
 
 #endif

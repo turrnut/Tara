@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "type.h"
+#include "../runtime/runtime.h"
 #include "../memory/memory.h"
 void emptyDataCollection(DataCollection *coll)
 {
@@ -118,6 +119,9 @@ bool isEqual(Data left, Data right) {
 Object* allocobj(size_t size, Type type) {
     Object* obj = (Object*)reallocMemory(NULL,size);
     obj->object_t = type;
+    obj->ref = (struct Object*)runtime.heap;
+
+    runtime.heap = obj;
     return obj;
 }
 

@@ -101,7 +101,7 @@ char peekNext() {
 bool inNumber(char ch){ return ch <= 57 && ch >= 48; }
 bool inAlphabet(char ch) { return (ch >= 97 && ch <= 122) || (ch >= 65 && ch <= 90) || (ch == 95); }
 Token new_text(){
-    while (peekCurrent() != '\'' && !(*lexer.current == '\0')) {
+    while (peekCurrent() != '\'' && *lexer.current != '\0') {
         lexer_next_char();
     }
     if (*lexer.current == '\0') return new_error_token(UNTERMINATED_STRING);
@@ -118,7 +118,6 @@ Token new_number() {
             lexer_next_char();
         
     }
-
     return new_token(NUMBER_TOKEN);
 }
 
@@ -208,7 +207,7 @@ Token get_token() {
     if (inAlphabet(ch))
         return new_id();
     switch(ch){
-        case '+': return new_token(ADD_TOKEN);
+        case '+': {filter(); return new_token(ADD_TOKEN);}
         case '-': return new_token(SUB_TOKEN);
         case '*': return new_token(MUL_TOKEN);
         case '/': return new_token(DIV_TOKEN);

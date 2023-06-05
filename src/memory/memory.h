@@ -19,8 +19,9 @@
     (type *)reallocMemory(pointer,            \
                           sizeof(type) * (target))
 #define ALLOC(t,c)(t*)reallocMemory(NULL,sizeof(t)*(c))
-#define freeMemory(type, pointer) \
-    reallocMemory(pointer, 0)
+#define freeMemory(type, pointer)reallocMemory(pointer, 0)
+    //#define FREE_ARRAY(type, pointer, oldCount)
+    // reallocate(pointer, sizeof(type) * (oldCount), 0)
 
 int allocVolume(int vol);
 void *reallocMemory(void *pointer, size_t targetAmount);

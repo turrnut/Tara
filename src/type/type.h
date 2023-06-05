@@ -64,6 +64,7 @@ typedef enum {
 */
 typedef struct {
     Type object_t;
+    struct Object* ref;
 } Object;
 
 /**

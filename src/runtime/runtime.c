@@ -38,11 +38,35 @@
     } while (false)
 
 RuntimeEnvironment runtime;
-
 void start_runtime_environment() {}
 void end_runtime_environment() {
+    freeStack();
+    freeHeap();
+}
+
+void freeStack() {
     free(runtime.stack);
     runtime.stack = NULL;
+}
+void freeHeap() {
+    Object* obj = runtime.heap;
+    while(obj != NULL) {
+        Object* this = (Object*)obj->ref;
+        releaseObject(obj);
+        obj = this;
+    }
+}
+void releaseObject(Object* obj) {
+    switch (obj->object_t) {
+        case TEXT:{
+            Text* text = (Text*)obj;
+            freeMemory(char, text->charlist);
+            freeMemory(Text, obj);
+            break;
+        }
+        default:
+            return;
+    }
 }
 
 int trace() {
@@ -103,8 +127,9 @@ void new_runtime(IR *ir, const char* fname)
     runtime.ir = ir;
     runtime.bp = runtime.ir->code;
     runtime.stack = malloc(STACK_SIZE * sizeof(*runtime.stack));
-    runtime.stacktop = runtime.stack;
+    runtime.stacktop = runtime.stack; // init stack
     runtime.filename = fname;
+    runtime.heap = NULL;
 }
 
 Result reportRuntimeError(const char *err) {
@@ -115,7 +140,9 @@ Result reportRuntimeError(const char *err) {
 
 Data see (int i) { return runtime.stacktop[-1-i]; }
 
-void concat_text(Text* left, Text* right) {
+void concat_text() {
+    Text* right = UNPACK_TEXT(stack_pop());
+    Text* left = UNPACK_TEXT(stack_pop());
     int new_len = left->len + right->len;
     char* charslist = ALLOC(char, new_len + 1);
     memcpy(charslist, left->charlist, left->len);
@@ -169,32 +196,23 @@ Result do_run() {
                 binary_operation(PACK_BOOLEAN, <=, false);
                 break;
             case INS_ADD:{
-                if (IS_TEXT(see(0)) && IS_TEXT(see(1))){
-                    Text* right = UNPACK_TEXT(stack_pop());
-                    Text* left = UNPACK_TEXT(stack_pop());
-                    concat_text(left, right);
-                }
-                else if (IS_NUMBER(see(0)) && IS_NUMBER(see(1))) {
+                if (IS_NUMBER(see(0)) && IS_NUMBER(see(1))) {
                     double right = UNPACK_NUMBER(stack_pop());
                     double left = UNPACK_NUMBER(stack_pop());
                     Data result = PACK_NUMBER(left + right);
                     stack_push(result);
+                } else if (see(0).type == OBJECT_VALUE){
+                    if(see(1).type == OBJECT_VALUE) {
+                        if(IS_TEXT(see(0)) && IS_TEXT(see(1))){
+                            concat_text();
+                        } else {
+                            reportRuntimeError(get_error_text(ILLEGAL_OPERANDS));
+                        }
+                    } else {
+                        reportRuntimeError(get_error_text(ILLEGAL_OPERANDS));
+                    }
                 } else
-                    return reportRuntimeError(
-                        strcat(
-                            strcat(
-                                strcat(
-                                    strcat(
-                                        strcat(get_error_text(ILLEGAL_OPERANDS), "\'"),
-                                        (const char*)(getDataNameByType(see(0).type))
-                                    ),
-                                    (const char*)("and \'")
-                                ),
-                                (const char*)(getDataNameByType(see(1).type))
-                            ),
-                            (const char*)("\'")
-                        )
-                    );
+                    return reportRuntimeError(get_error_text(ILLEGAL_OPERANDS));
                 break; 
             }
             case INS_SUB:{ binary_operation(PACK_NUMBER, -, false); break; }
