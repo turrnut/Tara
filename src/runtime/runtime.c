@@ -16,9 +16,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../base/base.h"
+#include "../include/base.h"
+#include "../include/constants.h"
 #include "../test/test.h"
-#include "../type/type.h"
+#include "../types/types.h"
 #include "../error/error.h"
 #include "../code/codegen.h"
 #include "../memory/memory.h"
@@ -104,17 +105,18 @@ Data readData()
 
 uint8_t step()
 {
-    if (*runtime.bp < STACK_SIZE)
+    if (((*runtime.bp) < (runtime.vol) * (RESIZE_STACK_WHEN_REACHED)))
         goto ret;
         
     int targetSize = stack_alloc(*runtime.bp);
+    runtime.vol = targetSize;
     runtime.stack = realloc(runtime.stack, *runtime.bp * sizeof(*runtime.stack));
     ret:
     return *runtime.bp++;
 }
 
 int stack_alloc(int vol) {
-    return ((vol) < (STACK_SIZE * 2) ? (STACK_SIZE * 2) : (vol)*1.5);
+    return (int)((vol) < (STACK_SIZE * 2) ? (STACK_SIZE * 2) : (vol)*2);
 }
 
 void update_stacktop()
@@ -129,6 +131,7 @@ void new_runtime(IR *ir, const char* fname)
     runtime.stack = malloc(STACK_SIZE * sizeof(*runtime.stack));
     runtime.stacktop = runtime.stack; // init stack
     runtime.filename = fname;
+    runtime.vol = STACK_SIZE;
     runtime.heap = NULL;
 }
 
@@ -148,7 +151,7 @@ void concat_text() {
     memcpy(charslist, left->charlist, left->len);
     memcpy(charslist + left->len, right->charlist, right->len);
     charslist[new_len] = '\0';
-    Text* res = allocText(charslist, new_len);
+    Text* res = alloc_text_without_encode(charslist, new_len);
     stack_push(PACK_OBJECT(res));
 }
 
@@ -175,6 +178,12 @@ Result do_run() {
                 int zero = 0;
                 if(!IS_NUMBER(see(zero))) return reportRuntimeError(strcat(strcat(strcat(get_error_text(EXPR_MUST_BE_NUMBER), ", found type '"), get_str_from_type_name(see(zero).type)), "'"));
                 stack_push(PACK_NUMBER(-UNPACK_NUMBER(stack_pop())));
+                break;
+            }
+            case INS_NOT_EQUAL: {
+                Data right = stack_pop();
+                Data left = stack_pop();
+                stack_push(PACK_BOOLEAN(!(isEqual(left,right))));
                 break;
             }
             case INS_EQUAL: {

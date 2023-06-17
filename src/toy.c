@@ -15,15 +15,15 @@
  *
  */
 
-#include "base/base.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "include/base.h"
 #include "ir/ir.h"
 #include "test/test.h"
 #include "runtime/runtime.h"
 #include "utils/files.h"
 #include "code/codegen.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char const *argv[])
 {

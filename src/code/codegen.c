@@ -18,10 +18,10 @@
 #include <stdlib.h>
 #include "codegen.h"
 #include "lexer.h"
-#include "../base/base.h"
+#include "../include/base.h"
 #include "../error/error.h"
 #include "../test/test.h"
-#include "../type/type.h"
+#include "../types/types.h"
 
 Compiler compiler;
 IR *compiling;

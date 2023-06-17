@@ -10,12 +10,16 @@
  * orginal author of this file.
  *
  * type.c
- * Implementation of type.h , go there to see more documentation.
+ * Implementation of types.h , go there to see more documentation.
  */
 
 #include <stdio.h>
 #include <string.h>
-#include "type.h"
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "types.h"
+#include "../include/constants.h"
 #include "../runtime/runtime.h"
 #include "../memory/memory.h"
 void emptyDataCollection(DataCollection *coll)
@@ -72,7 +76,7 @@ const char* get_str_from_type_name(DataType dat) {
 }
 
 bool isFalse (Data da) {
-    if(!IS_BOOLEAN(da)) {
+    if (!IS_BOOLEAN(da)) {
         if (IS_NULL(da)) return true;
         if (IS_NUMBER(da)) {
             if (UNPACK_NUMBER(da) == 0) return true;
@@ -102,7 +106,7 @@ const char* getDataNameByType(DataType dat) {
 }
 
 bool isEqual(Data left, Data right) {
-    if(left.type != right.type) {
+    if (left.type != right.type) {
         return false;
     }
     switch (left.type) {
@@ -111,7 +115,11 @@ bool isEqual(Data left, Data right) {
         case NUMBER_VALUE: 
             return UNPACK_NUMBER(left) == UNPACK_NUMBER(right);
         case NULL_VALUE: return (bool)(1);
-        case OBJECT_VALUE: return objectsEqual(left, right);
+        case OBJECT_VALUE:{
+            Text* text1 = UNPACK_TEXT(left);
+            Text* text2 = UNPACK_TEXT(right);
+            return text1->len == text2->len && memcmp(text1->charlist, text2->charlist, text1->len) == 0;
+        }
         default: return false;
     }
 }
@@ -125,24 +133,146 @@ Object* allocobj(size_t size, Type type) {
     return obj;
 }
 
+void empty_map(Map* map) {
+    map->count = 0;
+    map->volume = 0;
+    map->buckets = NULL;
+}
+
+void init_map(Map* map) {
+    empty_map(map);
+}
+
+void free_map(Map* map) {
+    freeMemory(Bucket, map->buckets);
+    empty_map(map);
+}
+
+uint32_t encode(char* chars, int length) {
+    uint32_t encoded = HASH_START;
+    for (int i = 0; i < length; i++) {
+        encoded ^= (uint8_t)chars[i];
+        encoded *= HASH_KEY;
+    }
+    return encoded;
+}
+
+Bucket* search_map(Bucket* buckets, int volume, Text* target) {
+    uint32_t i = target->encoded % volume;
+    Bucket* empty_bucket = NULL;
+    while (1) {
+        Bucket* bucket = &buckets[i];
+        if (bucket->name == NULL) {
+            if (IS_NULL(bucket->data)){
+                return empty_bucket != NULL ? empty_bucket : bucket;
+            } else {
+                if (empty_bucket == NULL) {
+                    empty_bucket = bucket;
+                }
+            }
+        } else if (bucket->name == target) {
+            return bucket;
+        }
+        i ++;
+        i %= volume;
+    }
+}
+
+void resize_map(Map* map, int volume) {
+    Bucket* buckets = ALLOC(Bucket, volume);
+    for (int i = 0; i < volume; i++) {
+        buckets[i].name = NULL;
+        buckets[i].data = PACK_NULL;
+    }
+
+    map->count = 0;
+    for (int j = 0; j < map->volume; j ++) {
+        Bucket* bucket = &map->buckets[j];
+        if (bucket->name == NULL)
+            continue;
+        Bucket* target = search_map(buckets, volume, target->name);
+        target->name = bucket->name;
+        target->data = bucket->data;
+        map->count ++;
+    }
+
+    freeMemory(Bucket, map->buckets);
+    map->buckets = buckets;
+    map->volume = volume;
+}
+
+void clone_map(Map* original, Map* clone) {
+    for (int i = 0; i < original->volume; i++) {
+        Bucket* bucket = &original->buckets[i];
+        if (bucket->name != NULL)
+            set_map(original, bucket->name, bucket->data);
+    }
+}
+
+bool delete_map(Map* map, Text* name) {
+    bool result = false;
+    if (map->count == 0)
+        goto retrn;
+
+    Bucket* bucket = search_map(map->buckets, map->volume, name);
+    if (bucket->name == NULL)
+        goto retrn;
+
+    bucket->name = NULL;
+    bucket->data = PACK_BOOLEAN(true);
+    result = true;
+    retrn:
+    return result;
+}
+
+bool get_map(Map* map, Text* name, Data* data) {
+    if (map->count == 0)
+        return false;
+    Bucket* bucket = search_map(map->buckets, map->volume, name);
+    if (bucket->name == NULL)
+        return false;
+    else {
+        *data = bucket->data;
+        return true;
+    }
+}
+
+bool set_map(Map* map, Text* name, Data data) {
+    if (1 + map->count > map->volume * RESIZE_MAP_WHEN_REACHED)
+        resize_map(map, stack_alloc(map->volume));
+    Bucket* bucket = search_map(map->buckets, map->volume, name);
+    bool new = bucket->name == NULL;
+    if (new && IS_NULL(bucket->data)) // is it newly created?
+        map->count ++;
+    bucket->name = name;
+    bucket->data = data;
+    return new;
+}
+
 Text* create_text(const char* c, int last) {
+    uint32_t encoded = encode((char*)c,last);
     char* Heap = ALLOC(char,1+last);
     memcpy(Heap,c,last);
     Heap[last] = '\0';
-    return allocText(Heap,last);
+    return alloc_text(Heap,last,encoded);
 }
 
-Text* allocText(char* c, int last) {
+Text* alloc_text_without_encode(char* c, int l) {
+    return alloc_text(c, l, encode(c, l));
+}
+
+Text* alloc_text(char* c, int last, uint32_t encoded) {
     Text* t = ALLOCOBJ(Text, TEXT);
     t->len = last;
     t->charlist = c;
+    t->encoded = encoded;
     return t;
 }
 
 void printData(Data d) {
     switch (d.type) {
         case BOOLEAN_VALUE:{
-            if(UNPACK_BOOLEAN(d)) printf("true");
+            if (UNPACK_BOOLEAN(d)) printf("true");
             else printf("false");
             break;
         }

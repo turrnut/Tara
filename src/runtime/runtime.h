@@ -17,8 +17,7 @@
 
 #include "../ir/ir.h"
 #include "../error/error.h"
-
-#define STACK_SIZE 1024 // 1 KiB of stack size by default
+#include "../include/constants.h"
 
 typedef struct
 {
@@ -26,6 +25,7 @@ typedef struct
     uint8_t *bp; // byte pointer
     Data *stack;
     Data *stacktop;
+    int vol; // stack size
     const char* filename;
     Object* heap;
 } RuntimeEnvironment;

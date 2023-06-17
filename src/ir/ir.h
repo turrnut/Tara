@@ -16,8 +16,8 @@
 #ifndef ir_header
 #define ir_header
 
-#include "../base/base.h"
-#include "../type/type.h"
+#include "../include/base.h"
+#include "../types/types.h"
 
 /**
  * Contains enum types of Instruction codes.

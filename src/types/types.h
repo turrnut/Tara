@@ -9,7 +9,7 @@
  * you will have to state changes you made and include the
  * orginal author of this file.
  *
- * type.h
+ * types.h
  * This header file provide declarations for the Data type.
  * The Data type was created in order to store information
  * during runtime. For example the stack memory uses a
@@ -19,6 +19,7 @@
 #define type_header
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdbool.h>
 
 #define PACK_BOOLEAN(b) ((Data) {BOOLEAN_VALUE, {.boolean = b}}) // Pack a C bool value to boolean Data
@@ -68,15 +69,15 @@ typedef struct {
 } Object;
 
 /**
- * Strings are a type of object. They are stored in the heap memory
+ * Texts are a type of object. They are stored in the heap memory
  * as well.
 */
 typedef struct {
     Object object;
     int len;
     char* charlist;
+    uint32_t encoded;
 } Text;
-
 
 /**
  * The Data struct represents a value stored in the program's
@@ -91,14 +92,37 @@ typedef struct {
     } is;
 } Data;
 
+typedef struct {
+    Text* name;
+    Data data;
+} Bucket;
+
+typedef struct {
+    int count;
+    int volume;
+    Bucket* buckets;
+} Map;
+
 Type get_object_type(Data obj);
 bool isFalse (Data da);
 bool isEqual(Data left, Data right);
 bool objectsEqual(Data left, Data right);
 bool isType (Data d, Type t);
+
+void empty_map(Map* ptr);
+void init_map(Map* ptr);
+void free_map(Map* ptr);
+bool set_map(Map* map, Text* name, Data data);
+bool get_map(Map* map, Text* name, Data* data);
+bool delete_map(Map* map, Text* name);
+void resize_map(Map* map, int volume);
+Bucket* search_map(Bucket* buckets, int vol, Text* target);
+void clone_map(Map* original, Map* clone);
+
 Text* create_text(const char* c, int l);
-Text* take_text(char* c, int len);
-Text* allocText(char* c, int l);
+Text* alloc_text_without_encode(char* c, int l);
+uint32_t encode(char* chars, int length);
+Text* alloc_text(char* c, int l, uint32_t encode);
 Object* allocobj(size_t size, Type t);
 const char* getDataNameByType(DataType dat);
 

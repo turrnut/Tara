@@ -17,7 +17,7 @@
 #include <signal.h>
 
 #include "files.h"
-#include "../base/base.h"
+#include "../include/base.h"
 #include "../ir/ir.h"
 #include "../code/codegen.h"
 #include "../runtime/runtime.h"

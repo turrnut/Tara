@@ -19,7 +19,7 @@
 #include <string.h>
 #include "lexer.h"
 #include "../ir/ir.h"
-#include "../base/base.h"
+#include "../include/base.h"
 #include "../error/error.h"
 
 Lexer lexer;
@@ -62,6 +62,7 @@ bool is(char c) {
     
     if (*lexer.current == c) {
         lexer.current ++;
+        filter();
         return true;
     }
 
@@ -208,23 +209,23 @@ Token get_token() {
         return new_id();
     switch(ch){
         case '+': {filter(); return new_token(ADD_TOKEN);}
-        case '-': return new_token(SUB_TOKEN);
-        case '*': return new_token(MUL_TOKEN);
-        case '/': return new_token(DIV_TOKEN);
-        case ',': return new_token(COMMA_TOKEN);
-        case '.': return new_token(DOT_TOKEN);
-        case '(': return new_token(LPAREN_TOKEN);
-        case ')': return new_token(RPAREN_TOKEN);
-        case ';': return new_token(LINE_TOKEN);
-        case ':': return new_token(COLON_TOKEN);
-        case '{': return new_token(LCURBRACES_TOKEN);
-        case '}': return new_token(RCURBRACES_TOKEN);
-        case '\'':return new_text();
-        case '\n':return new_token(LINE_TOKEN);
-        case '=': return new_token(is('=')?EQUAL_TOKEN:ASSIGN_TOKEN);
-        case '!': return new_token(is('=')?NOT_EQUAL_TOKEN:NOT_TOKEN);
-        case '<': return new_token(is('=')?LESS_THAN_OR_EQUAL_TO_TOKEN:LESS_THAN_TOKEN);
-        case '>': return new_token(is('=')?GREATER_THAN_OR_EQUAL_TO_TOKEN:GREATER_THAN_TOKEN);
+        case '-': {filter(); return new_token(SUB_TOKEN);}
+        case '*': {filter(); return new_token(MUL_TOKEN);}
+        case '/': {filter(); return new_token(DIV_TOKEN);}
+        case ',': {filter(); return new_token(COMMA_TOKEN);}
+        case '.': {filter(); return new_token(DOT_TOKEN);}
+        case '(': {filter(); return new_token(LPAREN_TOKEN);}
+        case ')': {filter(); return new_token(RPAREN_TOKEN);}
+        case ';': {filter(); return new_token(LINE_TOKEN);}
+        case ':': {filter(); return new_token(COLON_TOKEN);}
+        case '{': {filter(); return new_token(LCURBRACES_TOKEN);}
+        case '}': {filter(); return new_token(RCURBRACES_TOKEN);}
+        case '\'':{filter(); return new_text();}
+        case '\n':{filter(); return new_token(LINE_TOKEN);}
+        case '=': {filter(); return new_token(is('=')?EQUAL_TOKEN:ASSIGN_TOKEN);}
+        case '!': {filter(); return new_token(is('=')?NOT_EQUAL_TOKEN:NOT_TOKEN);}
+        case '<': {filter(); return new_token(is('=')?LESS_THAN_OR_EQUAL_TO_TOKEN:LESS_THAN_TOKEN);}
+        case '>': {filter(); return new_token(is('=')?GREATER_THAN_OR_EQUAL_TO_TOKEN:GREATER_THAN_TOKEN);}
     }
     return new_error_token(ILLEGAL_CHARACTER);
 }

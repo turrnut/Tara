@@ -23,7 +23,7 @@
 #include "../runtime/runtime.h"
 #include "../ir/ir.h"
 #include "../error/error.h"
-#include "../type/type.h"
+#include "../types/types.h"
 #include "lexer.h"
 
 typedef void (*CompilerFunction)();
