@@ -119,6 +119,7 @@ void resize_map(Map* map, int volume);
 Bucket* search_map(Bucket* buckets, int vol, Text* target);
 void clone_map(Map* original, Map* clone);
 
+Text* find_text_in_map(Map* map, const char* ch, int len, uint32_t encoded_txt);
 Text* create_text(const char* c, int l);
 Text* alloc_text_without_encode(char* c, int l);
 uint32_t encode(char* chars, int length);

@@ -39,8 +39,11 @@
     } while (false)
 
 RuntimeEnvironment runtime;
-void start_runtime_environment() {}
+void start_runtime_environment(IR* ir, const char* filename) {
+    new_runtime(ir, filename);
+}
 void end_runtime_environment() {
+    free_map(&runtime.pool);
     freeStack();
     freeHeap();
 }
@@ -124,8 +127,7 @@ void update_stacktop()
     runtime.stacktop = runtime.stack;
 }
 
-void new_runtime(IR *ir, const char* fname)
-{
+void new_runtime(IR *ir, const char* fname) {
     runtime.ir = ir;
     runtime.bp = runtime.ir->code;
     runtime.stack = malloc(STACK_SIZE * sizeof(*runtime.stack));
@@ -133,6 +135,7 @@ void new_runtime(IR *ir, const char* fname)
     runtime.filename = fname;
     runtime.vol = STACK_SIZE;
     runtime.heap = NULL;
+    init_map(&runtime.pool);
 }
 
 Result reportRuntimeError(const char *err) {
@@ -258,10 +261,9 @@ Result Compile(const char* filename, const char* src, IR* ir) {
 }
 
 Result Execute(const char* filename, IR* ir) {
-    start_runtime_environment();
+    start_runtime_environment(ir, filename);
     Result res;
-    
-    new_runtime(ir, filename);
+
     runtime.ir = ir;
     runtime.bp = runtime.ir->code;
 

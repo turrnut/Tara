@@ -18,6 +18,7 @@
 #include "../ir/ir.h"
 #include "../error/error.h"
 #include "../include/constants.h"
+#include "../types/types.h"
 
 typedef struct
 {
@@ -28,6 +29,7 @@ typedef struct
     int vol; // stack size
     const char* filename;
     Object* heap;
+    Map pool;
 } RuntimeEnvironment;
 
 typedef enum
@@ -39,8 +41,9 @@ typedef enum
 
 extern RuntimeEnvironment runtime;
 
-void start_runtime_environment();
+void start_runtime_environment(IR* ir, const char* filename);
 void end_runtime_environment();
+void new_runtime(IR *ir, const char* fname);
 void freeStack();
 void freeHeap();
 void releaseObject(Object* o);

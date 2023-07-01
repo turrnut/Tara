@@ -114,12 +114,10 @@ bool isEqual(Data left, Data right) {
             return UNPACK_BOOLEAN(left) == UNPACK_BOOLEAN(right);
         case NUMBER_VALUE: 
             return UNPACK_NUMBER(left) == UNPACK_NUMBER(right);
-        case NULL_VALUE: return (bool)(1);
-        case OBJECT_VALUE:{
-            Text* text1 = UNPACK_TEXT(left);
-            Text* text2 = UNPACK_TEXT(right);
-            return text1->len == text2->len && memcmp(text1->charlist, text2->charlist, text1->len) == 0;
-        }
+        case NULL_VALUE:
+            return (bool)(1);
+        case OBJECT_VALUE:
+            return UNPACK_OBJECT(left) == UNPACK_OBJECT(right);
         default: return false;
     }
 }
@@ -249,8 +247,30 @@ bool set_map(Map* map, Text* name, Data data) {
     return new;
 }
 
+Text* find_text_in_map(Map* map, const char* ch, int len, uint32_t encoded_txt) {
+    if (map->count == 0)
+        return NULL;
+    uint32_t i = encoded_txt % map->volume;
+    while (true) {
+        Bucket* current_bucket = &map->buckets[i];
+        if (current_bucket->name == NULL) {
+            if (IS_NULL(current_bucket->data)) {
+                return NULL;
+            }
+        } else if (current_bucket->name->len == len && current_bucket->name->encoded == encoded_txt && memcmp(current_bucket->name->charlist, ch, len) == 0) {
+            return current_bucket->name;
+        } else {
+            i++;
+            i %= map->volume;
+        }
+    }
+}
+
 Text* create_text(const char* c, int last) {
     uint32_t encoded = encode((char*)c,last);
+    Text* text = find_text_in_map(&runtime.pool, c, last, encoded);
+    if (text != NULL)
+        return text;
     char* Heap = ALLOC(char,1+last);
     memcpy(Heap,c,last);
     Heap[last] = '\0';
@@ -258,6 +278,12 @@ Text* create_text(const char* c, int last) {
 }
 
 Text* alloc_text_without_encode(char* c, int l) {
+    uint32_t encoded = encode(c, l);
+    Text* text = find_text_in_map(&runtime.pool, c, l, encoded);
+    if (text != NULL) {
+        freeMemory(char, c);
+        return text;
+    }
     return alloc_text(c, l, encode(c, l));
 }
 
@@ -266,6 +292,7 @@ Text* alloc_text(char* c, int last, uint32_t encoded) {
     t->len = last;
     t->charlist = c;
     t->encoded = encoded;
+    set_map(&runtime.pool, t, PACK_NULL);
     return t;
 }
 
