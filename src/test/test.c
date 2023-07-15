@@ -70,6 +70,8 @@ int showIns(IR *ir, int i) {
         showPosition(ir->pos);
         
         return 1 + i;
+    case INS_TRACE:
+        ins("INS_TRACE", i);showPosition(ir->pos);return 1 + i;
     case INS_ADD:
         ins("INS_ADD", i);showPosition(ir->pos);return 1 + i;
     case INS_SUB:

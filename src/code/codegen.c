@@ -265,6 +265,34 @@ void get_unary(){
 }
 
 
+bool checkTokenType(TokenTypes tokenType) {
+    return compiler.current.type == tokenType;
+}
+
+bool be(TokenTypes tokenType) {
+    if (checkTokenType(tokenType)) {
+        codegen_next();
+        return true;
+    }
+    return false;
+}
+
+void get_trace_statement() {
+    get_expr();
+    eat(LINE_TOKEN, EXPECT_LINE);
+    write_byte(1, INS_TRACE);
+}
+
+void get_statement() {
+    if (be(TRACE_TOKEN)) {
+        get_trace_statement();
+    }
+}
+
+void get_declaration() {
+    get_statement();
+}
+
 CodeGenerationResult codegen(const char *fn, const char *src, IR *ir)
 {
     compiler.flag = false;
@@ -272,8 +300,10 @@ CodeGenerationResult codegen(const char *fn, const char *src, IR *ir)
     compiling = ir;
     new_lexer(src);
     codegen_next();
-    get_expr();
-    eat(EOF_TOKEN, EXPECT_END);
+    while(!be(EOF_TOKEN)) {
+        get_declaration();
+    }
+
     end_codegen();
     if (compiler.flag)
         return CODEGEN_ERROR;

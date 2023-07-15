@@ -122,8 +122,10 @@ Token new_number() {
 }
 
 bool inKey(int strt, int len, const char* pattern) {
-    if(lexer.current - lexer.first == strt + len && memcmp(lexer.first + strt, pattern, len) == 0)
+    if(lexer.current - lexer.first == strt + len && memcmp(lexer.first + strt, pattern, len) == 0){
+        filter();
         return true;
+    }
     return false;
 }
 
@@ -134,6 +136,7 @@ TokenTypes id_type() {
     {
         case 'a': return inKey(strt, 2, "nd") ? AND_TOKEN : def;
         case 'c': return inKey(strt, 4, "lass") ? CLASS_TOKEN : def;
+        case 'd': return inKey(strt, 2, "ev") ? VARIABLE_TOKEN : def;
         case 'e': 
             if (lexer.current - lexer.first > 1) {
                 switch (lexer.first[1])
@@ -181,7 +184,6 @@ TokenTypes id_type() {
         case 'o': return inKey(strt, 1, "r") ? OR_TOKEN : def;
         case 'r': return inKey(strt, 5, "eturn") ? RETURN_TOKEN : def;
         case 's': return inKey(strt, 4, "uper") ? SUPER_TOKEN : def;
-        case 'v': return inKey(strt, 2, "al") ? VARIABLE_TOKEN : def;
         case 'w': return inKey(strt, 4, "hile") ? WHILE_TOKEN : def;
     }
     return def;

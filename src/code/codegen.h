@@ -158,10 +158,35 @@ void get_binary();
 void get_expr();
 
 /**
- * We all love to eat, ain't we? This function eat the next
- * token and check to see if that token's type match the token
- * type in the argument. If so, nothing happens, if not, throw
- * the error.
+ * Compiles a single declaration using the function.
+*/
+void get_declaration();
+
+/**
+ * Compiles a single statement using this function.
+*/
+void get_statement();
+
+/**
+ * Compiles a single trace statement using this function.
+*/
+void get_trace_statement();
+
+/**
+ * Check to see if the current token type can be the given
+ * argument.
+*/
+bool be(TokenTypes tokenType);
+
+/**
+ * Helper function of the be function
+*/
+bool checkTokenType(TokenTypes tokenType);
+
+/**
+ * This function eat the next token and check to see if that
+ * token's type match the token type in the argument. If so,
+ * nothing happens, if not, throw the error.
 */
 void eat(TokenTypes tok, Error throwIfFailed);
 

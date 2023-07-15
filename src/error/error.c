@@ -28,6 +28,8 @@ char* get_error_text(Error err){
             return "ValueTooLargeError: The value is too large to store in 1 bytecode.";
         case EXPECT_CHAR_RPAREN:
             return "ExpectCharacterError: Expect ')'.";
+        case EXPECT_LINE:
+            return "ExpectCharacterError: Expect ';' or new line.";
         case EXPECT_EXPRESSION:
             return "ExpectExpressionError: Expect expression.";
         ////////////////////////////

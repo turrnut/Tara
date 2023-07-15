@@ -170,10 +170,7 @@ Result do_run() {
         switch (instruction)
         {
             case INS_RETURN: {
-                printData(stack_pop());
-                printf("\n");
                 return EXECUTE_SUCCESS;
-                break;
             }
             case INS_DATA:{
                 stack_push(readData());
@@ -246,6 +243,11 @@ Result do_run() {
             }
             case INS_DATA_TRUE: {
                 stack_push(PACK_BOOLEAN(true));
+                break;
+            }
+
+            case INS_TRACE: {
+                printData(stack_pop());
                 break;
             }
         }
