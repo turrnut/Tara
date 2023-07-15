@@ -30,8 +30,6 @@ IR *get_current_ir() {
     return compiling;
 }
 
-
-
 void compile_with_priority(Priority p) {
     codegen_next();
     CompilerFunction prefixfunction = see_config(compiler.before.type)->prefix;
@@ -180,10 +178,12 @@ void codegen_next()
 void end_codegen()
 {
     write_byte(1,INS_RETURN);
-    #ifdef COMPILE_DEBUG_MODE
-        if (!compiler.flag) {
-            showIR(get_current_ir(), "bytecode");
-        }
+    #ifndef RELEASE_MODE
+        #ifdef COMPILE_DEBUG_MODE
+            if (!compiler.flag) {
+                showIR(get_current_ir(), "bytecode");
+            }
+        #endif
     #endif
 }
 

@@ -89,7 +89,7 @@ bool isFalse (Data da) {
 }
 
 bool objectsEqual(Data left, Data right) {
-    return (UNPACK_TEXT(left)->len == UNPACK_TEXT(right)->len) && (memcmp(UNPACK_TEXT(left)->charlist,UNPACK_TEXT(right)->charlist, UNPACK_TEXT(left)->len));
+    return (UNPACK_TEXT(left)->len == UNPACK_TEXT(right)->len) && memcmp(UNPACK_TEXT(left)->charlist,UNPACK_TEXT(right)->charlist, UNPACK_TEXT(left)->len) == 0;
 }
 
 const char* getDataNameByType(DataType dat) {
@@ -117,7 +117,7 @@ bool isEqual(Data left, Data right) {
         case NULL_VALUE:
             return (bool)(1);
         case OBJECT_VALUE:
-            return UNPACK_OBJECT(left) == UNPACK_OBJECT(right);
+            return objectsEqual(left,right);
         default: return false;
     }
 }

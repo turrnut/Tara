@@ -160,8 +160,10 @@ void concat_text() {
 
 Result do_run() {
     while (1) {
-        #ifdef RUNTIME_DEBUG_MODE
-            showIns(runtime.ir,(int)(runtime.bp - runtime.ir->code));
+        #ifndef RELEASE_MODE
+            #ifdef RUNTIME_DEBUG_MODE
+                showIns(runtime.ir,(int)(runtime.bp - runtime.ir->code));
+            #endif
         #endif
         uint8_t instruction;
         instruction = step();

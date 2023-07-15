@@ -84,7 +84,6 @@ void filter(){
         char p = peekCurrent();
         if (p == '#') 
             while(peekNext() != '\n' && *lexer.current != '\0') lexer_next_char();
-        
         if (p == ' ' || p == '\r' || p == '\t') lexer_next_char(); else return;
     }
 }
@@ -157,7 +156,7 @@ TokenTypes id_type() {
                 {
                     case 'a': return inKey(strt + 1, 3, "lse") ? FALSE_TOKEN : def;
                     case 'o': return inKey(strt + 1, 1, "r") ? FOR_TOKEN : def;
-                    case 'u': return inKey(strt + 1, 1, "n") ? FUNCTION_TOKEN : def;
+                    case 'u': return inKey(strt + 1, 2, "nc") ? FUNCTION_TOKEN : def;
                 }
             }
             break;
@@ -184,7 +183,6 @@ TokenTypes id_type() {
         case 's': return inKey(strt, 4, "uper") ? SUPER_TOKEN : def;
         case 'v': return inKey(strt, 2, "al") ? VARIABLE_TOKEN : def;
         case 'w': return inKey(strt, 4, "hile") ? WHILE_TOKEN : def;
-        case 'p': return inKey(strt, 5, "lease") ? IGNORE_TOKEN : def;
     }
     return def;
 }
