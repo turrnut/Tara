@@ -83,7 +83,7 @@ void filter(){
     while(1) {
         char p = peekCurrent();
         if (p == '#') 
-            while(peekNext() != '\n' && *lexer.current != '\0') lexer_next_char();
+            while(peekNext() != '\n' && *lexer.current != '\0') {lexer_next_char();}
         if (p == ' ' || p == '\r' || p == '\t') lexer_next_char(); else return;
     }
 }
@@ -203,6 +203,9 @@ Token get_token() {
     filter();
 
     char ch = lexer_next_char();
+    if(*lexer.current == '\0') {
+        return new_token(EOF_TOKEN);
+    }
     if (inNumber(ch))
         return new_number();
     if (inAlphabet(ch))
@@ -217,16 +220,19 @@ Token get_token() {
         case '(': {filter(); return new_token(LPAREN_TOKEN);}
         case ')': {filter(); return new_token(RPAREN_TOKEN);}
         case ';': {filter(); return new_token(LINE_TOKEN);}
+        case '\n':{filter(); return new_token(LINE_TOKEN);}
+        case '\'':{filter(); return new_text();}
         case ':': {filter(); return new_token(COLON_TOKEN);}
         case '{': {filter(); return new_token(LCURBRACES_TOKEN);}
         case '}': {filter(); return new_token(RCURBRACES_TOKEN);}
-        case '\'':{filter(); return new_text();}
-        case '\n':{filter(); return new_token(LINE_TOKEN);}
         case '=': {filter(); return new_token(is('=')?EQUAL_TOKEN:ASSIGN_TOKEN);}
         case '!': {filter(); return new_token(is('=')?NOT_EQUAL_TOKEN:NOT_TOKEN);}
         case '<': {filter(); return new_token(is('=')?LESS_THAN_OR_EQUAL_TO_TOKEN:LESS_THAN_TOKEN);}
         case '>': {filter(); return new_token(is('=')?GREATER_THAN_OR_EQUAL_TO_TOKEN:GREATER_THAN_TOKEN);}
     }
+    #ifndef RELEASE_MODE
+        printf("ILLEGAL IS:%i\n",ch);
+    #endif
     return new_error_token(ILLEGAL_CHARACTER);
 }
 

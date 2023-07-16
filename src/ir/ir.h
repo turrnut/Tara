@@ -41,7 +41,8 @@ typedef enum
     INS_GREATER_THAN_OR_EQUAL_TO,
     INS_LESS_THAN,
     INS_LESS_THAN_OR_EQUAL_TO,
-    INS_TRACE
+    INS_TRACE,
+    INS_STACK_POP
 } InsCode;
 
 typedef struct

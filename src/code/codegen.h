@@ -158,19 +158,24 @@ void get_binary();
 void get_expr();
 
 /**
- * Compiles a single declaration using the function.
+ * Compiles a declaration using the function.
 */
 void get_declaration();
 
 /**
- * Compiles a single statement using this function.
+ * Compiles a sentence using this function.
 */
-void get_statement();
+void get_sentence();
 
 /**
- * Compiles a single trace statement using this function.
+ * Compiles an expression in a sentence
 */
-void get_trace_statement();
+void get_expr_in_sentence();
+
+/**
+ * Compiles a trace sentence using this function.
+*/
+void get_trace_sentence();
 
 /**
  * Check to see if the current token type can be the given

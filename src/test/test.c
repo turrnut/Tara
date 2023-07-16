@@ -65,6 +65,10 @@ int showIns(IR *ir, int i) {
         ins("INS_RETURN", i);
         showPosition(ir->pos);
         return 1 + i;
+    case INS_STACK_POP:
+        ins("INS_STACK_POP",i);
+        showPosition(ir->pos);
+        return 1 + i; 
     case INS_NEGATIVE:
         ins("INS_NEGATIVE", i);
         showPosition(ir->pos);

@@ -172,6 +172,10 @@ Result do_run() {
             case INS_RETURN: {
                 return EXECUTE_SUCCESS;
             }
+            case INS_STACK_POP:{
+                stack_pop();
+                break;
+            }
             case INS_DATA:{
                 stack_push(readData());
                 break;

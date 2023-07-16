@@ -141,7 +141,8 @@ void eat(TokenTypes tok, Error throwIfFailed) {
         codegen_next();
         return;
     }
-    errorNow(get_error_text(throwIfFailed));
+    if (throwIfFailed >= 0)
+        errorNow(get_error_text(throwIfFailed));
 }
 
 void errorNow(const char *msg)
@@ -277,20 +278,31 @@ bool be(TokenTypes tokenType) {
     return false;
 }
 
-void get_trace_statement() {
+void get_trace_sentence() {
     get_expr();
-    eat(LINE_TOKEN, EXPECT_LINE);
+    if (compiler.current.type != EOF_TOKEN)
+        eat(LINE_TOKEN, EXPECT_LINE);
+        188;
     write_byte(1, INS_TRACE);
 }
 
-void get_statement() {
+void get_expr_in_sentence() {
+    get_expr();
+    if (compiler.current.type != EOF_TOKEN)
+        eat(LINE_TOKEN, EXPECT_LINE);
+    write_byte(1, INS_STACK_POP);
+}
+
+void get_sentence() {
     if (be(TRACE_TOKEN)) {
-        get_trace_statement();
+        get_trace_sentence();
+    } else {
+        get_expr_in_sentence();
     }
 }
 
 void get_declaration() {
-    get_statement();
+    get_sentence();
 }
 
 CodeGenerationResult codegen(const char *fn, const char *src, IR *ir)
