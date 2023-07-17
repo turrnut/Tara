@@ -54,50 +54,51 @@ int showIns(IR *ir, int i) {
     printf("%08d ", i);
 
     uint8_t instruction = ir->code[i];
-    switch (instruction)
-    {
-    case INS_DATA:
-        insD("INS_DATA", ir, i);
-        showPosition(ir->pos);
-        return 2 + i;
+    switch (instruction){
+        case INS_DATA:
+            insD("INS_DATA", ir, i);
+            showPosition(ir->pos);
+            return 2 + i;
 
-    case INS_RETURN:
-        ins("INS_RETURN", i);
-        showPosition(ir->pos);
-        return 1 + i;
-    case INS_STACK_POP:
-        ins("INS_STACK_POP",i);
-        showPosition(ir->pos);
-        return 1 + i; 
-    case INS_NEGATIVE:
-        ins("INS_NEGATIVE", i);
-        showPosition(ir->pos);
-        
-        return 1 + i;
-    case INS_TRACE:
-        ins("INS_TRACE", i);showPosition(ir->pos);return 1 + i;
-    case INS_ADD:
-        ins("INS_ADD", i);showPosition(ir->pos);return 1 + i;
-    case INS_SUB:
-        ins("INS_SUB", i);showPosition(ir->pos);return 1 + i;
-    case INS_MUL:
-        ins("INS_MUL", i);showPosition(ir->pos);return 1 + i;
-    case INS_DIV:
-        ins("INS_DIV", i);showPosition(ir->pos);return 1 + i;
-    case INS_NOT:ins("INS_NOT", i);showPosition(ir->pos);return 1+i;
-    case INS_DATA_NULL:
-        ins("INS_DATA_NULL", i);showPosition(ir->pos);return 1 + i;
-    case INS_DATA_TRUE:
-        ins("INS_DATA_TRUE", i);showPosition(ir->pos);return 1 + i;
-    case INS_DATA_FALSE:
-        ins("INS_DATA_FALSE", i);showPosition(ir->pos);return 1 + i;
-    case INS_EQUAL:ins("INS_EQUAL", i);showPosition(ir->pos);return 1+i;
-    case INS_NOT_EQUAL:ins("INS_NOT_EQUAL", i);showPosition(ir->pos);return 1+i;
-    case INS_GREATER_THAN:ins("INS_GREATER_THAN", i);showPosition(ir->pos);return 1+i;
-    case INS_GREATER_THAN_OR_EQUAL_TO:ins("INS_GREATER_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
-    case INS_LESS_THAN:ins("INS_LESS_THAN", i);showPosition(ir->pos);return 1+i;
-    case INS_LESS_THAN_OR_EQUAL_TO:ins("INS_LESS_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
-    default:
-        printf("Unknown instruction code %d\n", instruction);
+        case INS_RETURN:
+            ins("INS_RETURN", i);
+            showPosition(ir->pos);
+            return 1 + i;
+        case INS_STACK_POP:
+            ins("INS_STACK_POP",i);
+            showPosition(ir->pos);
+            return 1 + i; 
+        case INS_NEGATIVE:
+            ins("INS_NEGATIVE", i);
+            showPosition(ir->pos);
+            
+            return 1 + i;
+        case INS_TRACE:
+            ins("INS_TRACE", i);showPosition(ir->pos);return 1 + i;
+        case INS_ADD:
+            ins("INS_ADD", i);showPosition(ir->pos);return 1 + i;
+        case INS_SUB:
+            ins("INS_SUB", i);showPosition(ir->pos);return 1 + i;
+        case INS_MUL:
+            ins("INS_MUL", i);showPosition(ir->pos);return 1 + i;
+        case INS_DIV:
+            ins("INS_DIV", i);showPosition(ir->pos);return 1 + i;
+        case INS_NOT:ins("INS_NOT", i);showPosition(ir->pos);return 1+i;
+        case INS_DATA_NULL:
+            ins("INS_DATA_NULL", i);showPosition(ir->pos);return 1 + i;
+        case INS_DATA_TRUE:
+            ins("INS_DATA_TRUE", i);showPosition(ir->pos);return 1 + i;
+        case INS_DATA_FALSE:
+            ins("INS_DATA_FALSE", i);showPosition(ir->pos);return 1 + i;
+        case INS_EQUAL:ins("INS_EQUAL", i);showPosition(ir->pos);return 1+i;
+        case INS_NOT_EQUAL:ins("INS_NOT_EQUAL", i);showPosition(ir->pos);return 1+i;
+        case INS_GREATER_THAN:ins("INS_GREATER_THAN", i);showPosition(ir->pos);return 1+i;
+        case INS_GREATER_THAN_OR_EQUAL_TO:ins("INS_GREATER_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
+        case INS_LESS_THAN:ins("INS_LESS_THAN", i);showPosition(ir->pos);return 1+i;
+        case INS_LESS_THAN_OR_EQUAL_TO:ins("INS_LESS_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
+        case INS_DEV_GLOBAL:ins("INS_DEV_GLOBAL", i);showPosition(ir->pos);return 1+i;
+        default:{
+            printf("Unknown instruction code %d\n", instruction);
+        }
     }
 }

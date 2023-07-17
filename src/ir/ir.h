@@ -29,6 +29,8 @@ typedef enum
     INS_DATA_TRUE,
     INS_DATA_FALSE,
     INS_RETURN,
+    INS_DEV_GLOBAL,
+    INS_DEV_LOCAL,
     INS_NEGATIVE,
     INS_ADD,
     INS_SUB,

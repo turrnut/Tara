@@ -18,20 +18,22 @@ char* get_error_text(Error err){
 
     switch (err)
     {
-        case ILLEGAL_CHARACTER:
-            return "IllegalCharacterError: The character provided cannot be recognized.";
         case UNTERMINATED_STRING:
-            return "UnterminatedStringError: The string provided was never ended.";
-        case EXPECT_END:
-            return "ExpectEndingError: Expect the end of file.";
+            return "StringError: The string provided was never ended.";
         case VALUE_TOO_LARGE:
-            return "ValueTooLargeError: The value is too large to store in 1 bytecode.";
+            return "ValueError: The value is too large to store in 1 byte.";
+        case EXPECT_END:
+            return "SyntaxError: Expect the end of file.";
+        case ILLEGAL_CHARACTER:
+            return "SyntaxError: The character provided cannot be recognized.";
         case EXPECT_CHAR_RPAREN:
-            return "ExpectCharacterError: Expect ')'.";
+            return "SyntaxError: Expect ')'.";
         case EXPECT_LINE:
-            return "ExpectCharacterError: Expect ';' or new line.";
+            return "SyntaxError: Expect ';' or new line.";
         case EXPECT_EXPRESSION:
-            return "ExpectExpressionError: Expect expression.";
+            return "SyntaxError: Expect expression.";
+        case EXPECT_ID_FOR_VAR:
+            return "SyntaxError: Expect an identifier for variable.";
         ////////////////////////////
         case EXPR_MUST_BE_NUMBER:
             return "TypeError: Expression must be of type 'number'.";

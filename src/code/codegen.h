@@ -138,6 +138,11 @@ void errorNow(const char* msg);
 void errorPrevious(const char* msg);
 
 /**
+ * Extract an identifer from a token
+*/
+uint8_t id_data(Token* id_token);
+
+/**
  * Go to the next token
 */
 void codegen_next();
@@ -168,7 +173,28 @@ void get_declaration();
 void get_sentence();
 
 /**
- * Compiles an expression in a sentence
+ * Check to see if the compiler had reached the end of the file, which
+ * is marked by the EOF_TOKEN.
+*/
+bool at_end();
+
+/**
+ * Define a new variable.
+*/
+void specifiy_variable(uint8_t variable_name);
+
+/**
+ * Compiles a variable declaration using this function
+*/
+void get_variable_declaration();
+
+/**
+ * Skip tokens until the compiler reached a sentence.
+*/
+void skip_until_sentences();
+
+/**
+ * Compiles an expression in a sentence.
 */
 void get_expr_in_sentence();
 

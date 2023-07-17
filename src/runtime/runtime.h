@@ -30,6 +30,7 @@ typedef struct
     const char* filename;
     Object* heap;
     Map pool;
+    Map global_map;
 } RuntimeEnvironment;
 
 typedef enum
@@ -46,6 +47,7 @@ void end_runtime_environment();
 void new_runtime(IR *ir, const char* fname);
 void freeStack();
 void freeHeap();
+void freeMaps();
 void releaseObject(Object* o);
 void update_stacktop();
 void stack_push(Data data);
@@ -54,6 +56,7 @@ int stack_alloc(int vol);
 Data stack_pop();
 uint8_t step();
 Data readData();
+Text* readText();
 Result reportRuntimeError(const char *err);
 Data see(int i);
 Result Compile(const char* filename, const char* src, IR* ir);

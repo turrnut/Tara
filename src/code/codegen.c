@@ -141,8 +141,12 @@ void eat(TokenTypes tok, Error throwIfFailed) {
         codegen_next();
         return;
     }
-    if (throwIfFailed >= 0)
+
+    if (compiler.current.type == EOF_TOKEN && tok == LINE_TOKEN)
+        return;
+    if (throwIfFailed >= 0){
         errorNow(get_error_text(throwIfFailed));
+    }
 }
 
 void errorNow(const char *msg)
@@ -280,16 +284,13 @@ bool be(TokenTypes tokenType) {
 
 void get_trace_sentence() {
     get_expr();
-    if (compiler.current.type != EOF_TOKEN)
-        eat(LINE_TOKEN, EXPECT_LINE);
-        188;
+    eat(LINE_TOKEN, EXPECT_LINE);
     write_byte(1, INS_TRACE);
 }
 
 void get_expr_in_sentence() {
     get_expr();
-    if (compiler.current.type != EOF_TOKEN)
-        eat(LINE_TOKEN, EXPECT_LINE);
+    eat(LINE_TOKEN, EXPECT_LINE);
     write_byte(1, INS_STACK_POP);
 }
 
@@ -301,8 +302,59 @@ void get_sentence() {
     }
 }
 
+bool at_end() {
+    return compiler.current.type == EOF_TOKEN;
+}
+
+void skip_until_sentences() {
+    compiler.flag = false;
+    while (!at_end()) {
+        if(compiler.before.type == LINE_TOKEN)
+            return;
+        switch (compiler.current.type){
+            default:break;
+            case CLASS_TOKEN: return;
+            case FOR_TOKEN: return;
+            case FUNCTION_TOKEN: return;
+            case IF_TOKEN: return;
+            case RETURN_TOKEN: return;
+            case TRACE_TOKEN: return;
+            case VARIABLE_TOKEN: return;
+            case WHILE_TOKEN: return;
+        }
+    }
+}
+
+void specifiy_variable(uint8_t variable_name) {
+    write_byte(2, INS_DEV_GLOBAL, variable_name);
+}
+
+uint8_t id_data(Token* name_token){
+    return produce_data(PACK_OBJECT(create_text(name_token->first, name_token->len)));
+}
+
+void get_variable_declaration() {
+    // Get the identifier for variable
+    eat(ID_TOKEN, EXPECT_ID_FOR_VAR);
+    uint8_t gvar = id_data(&compiler.before);
+
+    // Check to see if there is an assignment operator, if there is,
+    // the value of the variable will be the follwing expression. if
+    // not, it will be assigned null, which is its default value
+    if(be(ASSIGN_TOKEN)) get_expr();
+    else write_byte(1, INS_DATA_NULL);
+
+    // Expectes a line ending
+    eat(LINE_TOKEN, EXPECT_LINE);
+
+    // Compiles the variable
+    specifiy_variable(gvar);
+}
+
 void get_declaration() {
-    get_sentence();
+    if (be(VARIABLE_TOKEN)) get_variable_declaration();
+    else get_sentence();
+    if(compiler.flag) skip_until_sentences();
 }
 
 CodeGenerationResult codegen(const char *fn, const char *src, IR *ir)

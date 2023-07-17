@@ -159,7 +159,7 @@ TokenTypes id_type() {
                 {
                     case 'a': return inKey(strt + 1, 3, "lse") ? FALSE_TOKEN : def;
                     case 'o': return inKey(strt + 1, 1, "r") ? FOR_TOKEN : def;
-                    case 'u': return inKey(strt + 1, 2, "nc") ? FUNCTION_TOKEN : def;
+                    case 'u': return inKey(strt + 1, 1, "n") ? FUNCTION_TOKEN : def;
                 }
             }
             break;
@@ -190,9 +190,12 @@ TokenTypes id_type() {
 }
 
 Token new_id() {
-    while(inAlphabet(peekCurrent()) || inNumber(peekCurrent()))
+    int i = 0;
+    while(inAlphabet(peekCurrent()) || inNumber(peekCurrent())){
         lexer_next_char();
-    return new_token(id_type());
+    }
+    TokenTypes type = id_type();
+    return new_token(type);
 }
 
 Token get_token() {

@@ -43,9 +43,14 @@ void start_runtime_environment(IR* ir, const char* filename) {
     new_runtime(ir, filename);
 }
 void end_runtime_environment() {
-    free_map(&runtime.pool);
+    freeMaps();
     freeStack();
     freeHeap();
+}
+
+void freeMaps() {
+    free_map(&runtime.pool);
+    free_map(&runtime.global_map);
 }
 
 void freeStack() {
@@ -106,6 +111,10 @@ Data readData()
     return runtime.ir->coll.elements[step()];
 }
 
+Text* readText() {
+    return UNPACK_TEXT(readData());
+}
+
 uint8_t step()
 {
     if (((*runtime.bp) < (runtime.vol) * (RESIZE_STACK_WHEN_REACHED)))
@@ -136,6 +145,7 @@ void new_runtime(IR *ir, const char* fname) {
     runtime.vol = STACK_SIZE;
     runtime.heap = NULL;
     init_map(&runtime.pool);
+    init_map(&runtime.global_map);
 }
 
 Result reportRuntimeError(const char *err) {
@@ -250,6 +260,13 @@ Result do_run() {
                 break;
             }
 
+            case INS_DEV_GLOBAL: {
+                Text* varname = readText();
+                set_map(&runtime.global_map, varname, see(0));
+                stack_pop();
+                break;
+            }
+            
             case INS_TRACE: {
                 printData(stack_pop());
                 break;
