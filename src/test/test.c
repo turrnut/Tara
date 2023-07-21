@@ -96,7 +96,8 @@ int showIns(IR *ir, int i) {
         case INS_GREATER_THAN_OR_EQUAL_TO:ins("INS_GREATER_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
         case INS_LESS_THAN:ins("INS_LESS_THAN", i);showPosition(ir->pos);return 1+i;
         case INS_LESS_THAN_OR_EQUAL_TO:ins("INS_LESS_THAN_OR_EQUAL_TO", i);showPosition(ir->pos);return 1+i;
-        case INS_DEV_GLOBAL:ins("INS_DEV_GLOBAL", i);showPosition(ir->pos);return 1+i;
+        case INS_GLOBAL_DEV:ins("INS_DEV_GLOBAL", i);showPosition(ir->pos);return 1+i;
+        case INS_GLOBAL_GEV:ins("INS_GEV_GLOBAL", i);showPosition(ir->pos);return 1+i;
         default:{
             printf("Unknown instruction code %d\n", instruction);
         }

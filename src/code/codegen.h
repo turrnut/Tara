@@ -138,6 +138,16 @@ void errorNow(const char* msg);
 void errorPrevious(const char* msg);
 
 /**
+ * Define a variable
+*/
+void dev ();
+
+/**
+ * Speicifies the name of the variable
+*/
+void dev_name(Token devname);
+
+/**
  * Extract an identifer from a token
 */
 uint8_t id_data(Token* id_token);

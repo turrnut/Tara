@@ -260,10 +260,19 @@ Result do_run() {
                 break;
             }
 
-            case INS_DEV_GLOBAL: {
+            case INS_GLOBAL_DEV: {
                 Text* varname = readText();
                 set_map(&runtime.global_map, varname, see(0));
                 stack_pop();
+                break;
+            }
+
+            case INS_GLOBAL_GEV: {
+                Text* varname = readText();
+                Data data;
+                if (!get_map(&runtime.global_map, varname, &data))
+                    return reportRuntimeError(get_error_text_with_one_arg(UNDEFINED_ERROR, varname->charlist));
+                stack_push(data);
                 break;
             }
             

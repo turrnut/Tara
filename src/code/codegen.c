@@ -92,7 +92,7 @@ CompilerConfig configurations[] = {
     [DOT_TOKEN]={NULL,NULL,NO_PRIORITY},
     [LINE_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ASSIGN_TOKEN]={NULL,NULL,NO_PRIORITY},
-    [ID_TOKEN]={NULL,NULL,NO_PRIORITY},
+    [ID_TOKEN]={dev,NULL,NO_PRIORITY},
     [AND_TOKEN]={NULL,NULL,NO_PRIORITY},
     [CLASS_TOKEN]={NULL,NULL,NO_PRIORITY},
     [ELSE_TOKEN]={NULL,NULL,NO_PRIORITY},
@@ -113,6 +113,8 @@ CompilerConfig configurations[] = {
 CompilerConfig* see_config(TokenTypes p) {
     return &configurations[p];
 }
+
+
 void write_byte(int amount, ...) {
     va_list ap;
     int i;
@@ -326,7 +328,7 @@ void skip_until_sentences() {
 }
 
 void specifiy_variable(uint8_t variable_name) {
-    write_byte(2, INS_DEV_GLOBAL, variable_name);
+    write_byte(2, INS_GLOBAL_DEV, variable_name);
 }
 
 uint8_t id_data(Token* name_token){
@@ -355,6 +357,14 @@ void get_declaration() {
     if (be(VARIABLE_TOKEN)) get_variable_declaration();
     else get_sentence();
     if(compiler.flag) skip_until_sentences();
+}
+
+void dev() {
+    dev_name(compiler.before);
+}
+void dev_name(Token devname) {
+    uint8_t name = id_data(&devname);
+    write_byte(2, INS_GLOBAL_GEV, name);
 }
 
 CodeGenerationResult codegen(const char *fn, const char *src, IR *ir)

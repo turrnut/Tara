@@ -13,11 +13,22 @@
  */
 
 #include <stdarg.h>
+#include <string.h>
 #include "error.h"
-char* get_error_text(Error err){
 
-    switch (err)
-    {
+char* get_error_text_with_one_arg(Error err, char* arg) {
+    switch(err){
+        case UNDEFINED_ERROR:{
+            char buffer[1024];
+            strcpy(buffer, "ValueError: Undefined variable \'"); 
+            strcat(buffer, arg);
+            return strcat(buffer, "\'.");
+        }
+    }
+
+}
+char* get_error_text(Error err,...){
+    switch (err) {
         case UNTERMINATED_STRING:
             return "StringError: The string provided was never ended.";
         case VALUE_TOO_LARGE:
