@@ -115,8 +115,7 @@ Text* readText() {
     return UNPACK_TEXT(readData());
 }
 
-uint8_t step()
-{
+uint8_t step() {
     if (((*runtime.bp) < (runtime.vol) * (RESIZE_STACK_WHEN_REACHED)))
         goto ret;
         
@@ -262,7 +261,10 @@ Result do_run() {
 
             case INS_GLOBAL_DEV: {
                 Text* varname = readText();
-                set_map(&runtime.global_map, varname, see(0));
+                Data data = see(0);
+                if (get_map(&runtime.global_map, varname, &data))
+                    return reportRuntimeError(get_error_text_with_one_arg(REDEFINED, varname->charlist));
+                set_map(&runtime.global_map, varname, data);
                 stack_pop();
                 break;
             }
@@ -271,7 +273,7 @@ Result do_run() {
                 Text* varname = readText();
                 Data data;
                 if (!get_map(&runtime.global_map, varname, &data))
-                    return reportRuntimeError(get_error_text_with_one_arg(UNDEFINED_ERROR, varname->charlist));
+                    return reportRuntimeError(get_error_text_with_one_arg(UNDEFINED, varname->charlist));
                 stack_push(data);
                 break;
             }
@@ -291,6 +293,7 @@ Result Compile(const char* filename, const char* src, IR* ir) {
     if(codegen(filename,src, ir) == CODEGEN_ERROR) {
         return COMPILE_ERROR;
     }
+    printf("END COMPILE SUC!!\n");
     return EXECUTE_SUCCESS;
 }
 

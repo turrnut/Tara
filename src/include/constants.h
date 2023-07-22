@@ -16,7 +16,7 @@
 #define constants_header
 #define HASH_START 2166136261u
 #define HASH_KEY 16777619
-#define STACK_SIZE 1024
+#define STACK_SIZE 2048
 #define RESIZE_MAP_WHEN_REACHED 0.7
 #define RESIZE_STACK_WHEN_REACHED 0.8
 #endif

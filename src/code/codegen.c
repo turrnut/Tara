@@ -298,6 +298,7 @@ void get_expr_in_sentence() {
 
 void get_sentence() {
     if (be(TRACE_TOKEN)) {
+        
         get_trace_sentence();
     } else {
         get_expr_in_sentence();

@@ -30,7 +30,8 @@ typedef enum {
     EXPR_MUST_BE_NUMBER,
     ILLEGAL_OPERANDS,
     ZERO_DIVISION,
-    UNDEFINED_ERROR
+    UNDEFINED,
+    REDEFINED
 } Error;
 
 /**

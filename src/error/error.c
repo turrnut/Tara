@@ -18,12 +18,22 @@
 
 char* get_error_text_with_one_arg(Error err, char* arg) {
     switch(err){
-        case UNDEFINED_ERROR:{
+        case REDEFINED: {
             char buffer[1024];
-            strcpy(buffer, "ValueError: Undefined variable \'"); 
+            strcpy(buffer, "VariableError: Redefinition of \'"); 
             strcat(buffer, arg);
             return strcat(buffer, "\'.");
         }
+
+        case UNDEFINED:{
+            char buffer[1024];
+            strcpy(buffer, "VariableError: Undefined variable \'"); 
+            strcat(buffer, arg);
+            return strcat(buffer, "\'.");
+        }
+        default:
+        case UNKNOWN_ERROR:
+            return "Error.";
     }
 
 }
@@ -55,7 +65,7 @@ char* get_error_text(Error err,...){
 
         case UNKNOWN_ERROR:
         default:
-            return "Error";
+            return "Error.";
             break;
     }
     
