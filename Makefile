@@ -1,18 +1,10 @@
 # 
 # Author: turrnut
-# Copyrighted © turrnut under the Apache 2.0 license
-#
-# We hoped that you will use this piece of open source
-# software fairly. read the LICENSE for more details about
-# how you can use it, you have freedom to distribute and
-# use this code in your project. However, you will have to
-# state changes you made and include the orginal author of
-# this code.
-#
-# Makefile
+# Copyrighted (c) turrnut under the Apache 2.0 license
+# ir.h
 #
 
-source_files = src/toy.c src/code/codegen.c src/code/lexer.c src/error/error.c src/ir/ir.c src/memory/memory.c src/runtime/runtime.c src/test/test.c src/types/types.c src/utils/files.c
+source_files = src/toy.c src/code/ir.c src/debugging/debugging.c src/security/alloc.c src/types/types.c
 output_binary = bin/tara
 
 install-packages:
@@ -21,5 +13,5 @@ install-packages:
 build:
 	mkdir bin || echo
 	gcc $(source_files) -o $(output_binary)
-	./bin/tara -h
+	./bin/tara
 
