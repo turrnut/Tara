@@ -5,8 +5,8 @@
 #include "../types/types.h"
 
 typedef enum {
-    INS_RET, // return
-    INS_DEC, // define constant
+    INS_RETURN, // return
+    INS_DEFCONST, // define constant
 } InsCode;
 
 typedef struct {
@@ -26,6 +26,6 @@ void emptyIR(IR* ir);
 void initIR(IR* ir);
 void freeIR(IR* ir);
 int addDataValue(IR* ir, DataValue val);
-void writeIR(IR* ir, uint8_t stuff);
+void writeIR(IR* ir, uint8_t stuff, Position pos);
 
 #endif

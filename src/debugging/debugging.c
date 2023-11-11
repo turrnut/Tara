@@ -7,6 +7,7 @@ void showIR(IR* ir, const char* testname) {
     for (int idx = 0; idx < ir->counter;) {
         idx = showInstruction(ir, idx);
     }
+    printf("\nTOTAL:\trows:%03d, cols:%03d\n", ir->pos.row,ir->pos.col);
 }
 
 static int displayUnknownInstruction(int inscode, int idx) {
@@ -21,7 +22,7 @@ static int displayInstruction(const char* ins, int idx) {
 
 static int displayOneOperandInstruction(const char* ins, IR* ir, int idx) {
     uint8_t operand = ir->code[idx + 1];
-    printf("%-16s\t%6d (", ins, operand);
+    printf("%-12s\t%6d (", ins, operand);
     printStuff(ir->list.data[operand]);
     printf(")\n");
     return idx + 2;
@@ -34,10 +35,10 @@ int showInstruction(IR* ir, int idx) {
         default:
             return displayUnknownInstruction(inst, idx);
 
-        case INS_RET:
+        case INS_RETURN:
             return displayInstruction("INS_RET", idx);
-        case INS_DEC:
-            return displayOneOperandInstruction("INS_DEC", ir, idx);
+        case INS_DEFCONST:
+            return displayOneOperandInstruction("INS_DEFCONST", ir, idx);
     }
 }
 
