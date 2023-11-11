@@ -7,6 +7,7 @@
 typedef enum {
     INS_RETURN, // return
     INS_DEFCONST, // define constant
+    INS_DEFCONST_LARGE
 } InsCode;
 
 typedef struct {
@@ -25,7 +26,8 @@ typedef struct {
 void emptyIR(IR* ir);
 void initIR(IR* ir);
 void freeIR(IR* ir);
-int addDataValue(IR* ir, DataValue val);
+int addDataValueToList(IR* ir, DataValue val);
 void writeIR(IR* ir, uint8_t stuff, Position pos);
+void defineConstant(IR* ir, DataValue val, Position pos);
 
 #endif

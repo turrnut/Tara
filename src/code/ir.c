@@ -19,7 +19,7 @@ void initIR(IR* ir) {
     emptyIR(ir);
 }
 
-int addDataValue(IR* ir, DataValue val) {
+int addDataValueToList(IR* ir, DataValue val) {
     writeDataValuesList(&ir->list, val);
     return ir->list.counter - 1;
 }
@@ -42,8 +42,20 @@ void writeIR(IR* ir, uint8_t stuff, Position pos) {
         ir->volume = MORE_VOLUME(vol);
         ir->code = MORE_SPACE(uint8_t, ir->code, vol, ir->volume);
     }
-    // freePosition(ir->pos, ir->volume);
     ir->code[ir->counter] = stuff;
     ir->pos = pos;
     ir->counter++;
+}
+
+void defineConstant(IR* ir, DataValue val, Position pos) {
+    int maxidx = addDataValueToList(ir, val);
+    if (maxidx < 256) {
+        writeIR(ir, INS_DEFCONST, pos);
+        writeIR(ir, (uint8_t)maxidx, pos);
+        return;
+    }
+    writeIR(ir,INS_DEFCONST_LARGE, pos);
+    writeIR(ir, (uint8_t)(maxidx & 0xff), pos);
+    writeIR(ir, (uint8_t)((maxidx >> 8) & 0xff), pos);
+    writeIR(ir, (uint8_t)((maxidx >> 16) & 0xff), pos);
 }

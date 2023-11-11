@@ -28,6 +28,14 @@ static int displayOneOperandInstruction(const char* ins, IR* ir, int idx) {
     return idx + 2;
 }
 
+static int displayLargeOneOperandInstruction(const char* ins, IR* ir, int idx) {
+    uint32_t operand = ir->code[idx + 1] | (ir->code[idx + 2] << 8) | (ir->code[idx + 3] << 16);
+    printf("%-12s\t%6d (", ins, operand);
+    printStuff(ir->list.data[operand]);
+    printf(")\n");
+    return idx + 4;
+}
+
 int showInstruction(IR* ir, int idx) {
     printf("%06d\t", idx);
     uint8_t inst = ir->code[idx];
@@ -39,6 +47,8 @@ int showInstruction(IR* ir, int idx) {
             return displayInstruction("INS_RET", idx);
         case INS_DEFCONST:
             return displayOneOperandInstruction("INS_DEFCONST", ir, idx);
+        case INS_DEFCONST_LARGE:
+            return displayLargeOneOperandInstruction("INS_DEFCONST_LARGE", ir, idx);
     }
 }
 
