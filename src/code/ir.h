@@ -7,7 +7,12 @@
 typedef enum {
     INS_RETURN, // return
     INS_DEFCONST, // define constant
-    INS_DEFCONST_LARGE
+    INS_DEFCONST_LARGE,
+    INS_ADD,
+    INS_SUB,
+    INS_MUL,
+    INS_DIV,
+    INS_NEGATE
 } InsCode;
 
 typedef struct {

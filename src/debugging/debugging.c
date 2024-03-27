@@ -3,6 +3,12 @@
 #include "../types/types.h"
 
 void showIR(IR* ir, const char* testname) {
+    #ifdef READY
+       return;
+    #endif
+    #ifndef COMPILE_DEBUGGING
+        return;
+    #endif
     printf("DEBUGGING: %s\n\n",testname);
     for (int idx = 0; idx < ir->counter;) {
         idx = showInstruction(ir, idx);
@@ -45,6 +51,16 @@ int showInstruction(IR* ir, int idx) {
 
         case INS_RETURN:
             return displayInstruction("INS_RET", idx);
+        case INS_NEGATE:
+            return displayInstruction("INS_NEGATE", idx);
+        case INS_ADD:
+            return displayInstruction("INS_ADD", idx);
+        case INS_SUB:
+            return displayInstruction("INS_SUB", idx);
+        case INS_MUL:
+            return displayInstruction("INS_MUL", idx);
+        case INS_DIV:
+            return displayInstruction("INS_DIV", idx);
         case INS_DEFCONST:
             return displayOneOperandInstruction("INS_DEFCONST", ir, idx);
         case INS_DEFCONST_LARGE:
