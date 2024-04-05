@@ -40,13 +40,13 @@ Result run(IR* ir) {
     while(1) {
         #ifndef READY
             #ifdef RUNTIME_DEBUGGING
-                printf("\t\n");
+                printf("");
                 for (DataValue* thing = runtime.stack; thing < runtime.stackTop; thing++) {
                     printf("{ ");
                     printStuff(*thing);
                     printf(" }");
                 }
-                printf("\t\n");
+                printf("\n");
                 showInstruction(runtime.ir, (int)(runtime.pc - runtime.ir->code));
             #endif
         #endif

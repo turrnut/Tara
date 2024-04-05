@@ -42,6 +42,7 @@ static int displayLargeOneOperandInstruction(const char* ins, IR* ir, int idx) {
     return idx + 4;
 }
 
+// main instruction function
 int showInstruction(IR* ir, int idx) {
     printf("%06d\t", idx);
     uint8_t inst = ir->code[idx];
